@@ -3,4 +3,4 @@ BOT_TOKEN = 'setup in config.py'
 AI_TOKEN = 'setup in config.py'
 ADMIN_USERNAME = 'bilabon'
 
-# You need to create config.py and specify there all this variables
+# You need to create config.py and set all this variables there
