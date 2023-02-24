@@ -1,9 +1,9 @@
 import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from tools.ai import ask_chatgpt
 from tools.db import check_or_create_db, get_or_create_user, set_user_role, get_user_by_username
 from tools.parser import parse_setrole_message
-from tools.ai import ask_chatgpt
 from settings.config import BOT_TOKEN
 
 
