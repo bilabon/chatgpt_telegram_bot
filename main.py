@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # context.
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /start is issued."""
+    await check_or_create_db()
     user = await get_or_create_user(update)
     await update.message.reply_html(f"Welcome {user.username}! Ask admin to allow you texting to me.")
 
@@ -49,8 +50,6 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     logger.info(update)
-    logger.info(update.to_dict())
-    await check_or_create_db()
     response = ask_chatgpt(update.message.text)
     if response:
         await update.message.reply_text(response)

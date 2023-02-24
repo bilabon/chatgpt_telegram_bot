@@ -4,4 +4,4 @@ __pycache__/
 *$py.class
 .idea/
 .env/
-settings/config_local.py
+db.sqlite
