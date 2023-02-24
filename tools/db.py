@@ -1,10 +1,11 @@
 import os
-from datetime import datetime,timezone
+from datetime import datetime, timezone
+
 import aiosqlite
 from aiosqlite.core import Connection
+from models import USER_ROLE_CHOICES, User
+from settings.config import ADMIN_USERNAME, DB_NAME
 from telegram import Update
-from settings.config import DB_NAME, ADMIN_USERNAME
-from models import User, USER_ROLE_CHOICES
 
 
 async def check_or_create_db() -> None:
@@ -30,12 +31,11 @@ CREATE TABLE "user_message" (
 );
 CREATE INDEX "user_role_id_c3a87a3d" ON "user" ("role_id");
 CREATE INDEX "user_message_user_id_8a912feb" ON "user_message" ("user_id");
-INSERT INTO `user_role` (`id`, `name`)
-            VALUES
-                (1, 'admin'),
-                (2, 'client'),
-                (3, 'alient'),
-                (4, 'blocked');""")
+INSERT INTO `user_role` (`id`, `name`) VALUES
+    (1, 'admin'),
+    (2, 'client'),
+    (3, 'alient'),
+    (4, 'blocked');""")
             await db.commit()
 
 
@@ -60,8 +60,8 @@ async def get_or_create_user(update: Update) -> User:
             role_id = 1 if tuser.username == ADMIN_USERNAME else 3
             print('role_id', role_id)
             await db.execute(f"""
-INSERT INTO user (username, first_name, telegram_id, language_code, role_id, time_added)
-VALUES ('{tuser.username}', '{tuser.first_name}', {tuser.id}, '{tuser.language_code}', {role_id}, '{time_added}');""")
+INSERT INTO user (username, first_name, telegram_id, language_code, role_id, time_added) VALUES
+('{tuser.username}', '{tuser.first_name}', {tuser.id}, '{tuser.language_code}', {role_id}, '{time_added}');""")
             await db.commit()
         user = await get_user_by_username(tuser.username, db)
         return user

@@ -24,5 +24,5 @@ class User:
     def is_client(self):
         return bool(self.role_id == USER_ROLE_CHOICES['client'])
 
-    def get_role(self):
+    def get_role_name(self):
         return list(USER_ROLE_CHOICES.keys())[list(USER_ROLE_CHOICES.values()).index(self.role_id)]

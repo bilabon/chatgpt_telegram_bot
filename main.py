@@ -42,7 +42,7 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await set_user_role(update, username_, role_name_)
             # TODO: delete, its only for debug
             updated_user_ = await get_user_by_username(username_)
-            await update.message.reply_text(f"Success! {username_} now with {updated_user_.get_role()} role.")
+            await update.message.reply_text(f"Success! {username_} now with {updated_user_.get_role_name()} role.")
         else:
             await update.message.reply_text(f"{username_} is not found!")
 
