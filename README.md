@@ -5,7 +5,7 @@ git clone git@github.com:bilabon/chatgpt_telegram_bot.git
 cd chatgpt_telegram_bot
 python3.11 -m venv .env && source .env/bin/activate && pip freeze && python3.11 -V
 pip --no-cache-dir install -U pip && pip --no-cache-dir install -U setuptools && pip --no-cache-dir install -U wheel
-pip --no-cache-dir install -U -r requirements.txt && pip3 list --outdated --format=columns
+pip --no-cache-dir install -U -r requirements.txt && pip list --outdated --format=columns
 cp settings/config_template.py settings/config.py
 ```    
 
