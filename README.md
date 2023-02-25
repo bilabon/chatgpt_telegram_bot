@@ -12,8 +12,9 @@ cp settings/config_template.py settings/config.py
 And now you neet to set BOT_TOKEN, AI_TOKEN in settings/config.py
 - AI_TOKEN from here https://platform.openai.com/account/api-keys
 - BOT_TOKEN from https://telegram.me/BotFather
+- ADMIN_USERNAME - your username from telegram
 
-#### Commands for https://fly.io
+#### Commands for deploying to https://fly.io
 
 ```
 brew install flyctl
@@ -22,12 +23,13 @@ flyctl auth signup
 flyctl launch
 flyctl deploy
 
-# https://www.autodidacts.io/backup-ghost-on-fly-sftp/
+# how to download db from remote container https://www.autodidacts.io/backup-ghost-on-fly-sftp/
 flyctl ssh sftp shell -r -a tbot
 get /bot/db.sqlite
 
-# https://fly.io/docs/flyctl/ssh-console/
+# how to connect to remote console https://fly.io/docs/flyctl/ssh-console/
 flyctl ssh console -s tbot
 
+# how to restart the remote app, you should do it because after deploying sometimes run 2 instances and you get an error
 flyctl apps restart tbot
 ```
