@@ -12,7 +12,7 @@ cp settings/config_template.py settings/config.py
 And now you neet to set BOT_TOKEN, AI_TOKEN, ADMIN_USERNAME in settings/config.py
 - AI_TOKEN from here https://platform.openai.com/account/api-keys
 - BOT_TOKEN from https://telegram.me/BotFather
-- ADMIN_USERNAME - your username from telegram
+- ADMIN_USERNAME - your username from telegram without @
 
 #### Info
 - The first thing an admin needs to do in a chat room is to execute the command `/start`. This command will create a database.
