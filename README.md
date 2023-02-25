@@ -12,6 +12,7 @@ cp settings/config_template.py settings/config.py
 And now you neet to set BOT_TOKEN, AI_TOKEN in settings/config.py
 - AI_TOKEN from here https://platform.openai.com/account/api-keys
 - BOT_TOKEN from https://telegram.me/BotFather
+- ADMIN_USERNAME - your username from telegram
 
 #### Commands for https://fly.io
 
