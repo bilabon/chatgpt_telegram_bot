@@ -2,7 +2,14 @@ import logging
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from tools.ai import ask_chatgpt
-from tools.db import check_or_create_db, get_or_create_user, set_user_role, get_user_by_username
+from tools.db import (
+    check_or_create_db,
+    get_or_create_user,
+    set_user_role,
+    get_user_by_username,
+    get_list_users,
+)
+from tools.user import render_list_users
 from tools.parser import parse_setrole_message
 from settings.config import BOT_TOKEN, ADMIN_USERNAME
 
@@ -20,7 +27,18 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     """Send a message when the command /start is issued."""
     await check_or_create_db()
     user = await get_or_create_user(update)
-    await update.message.reply_html(f"Welcome {user.username}! Ask admin to allow you texting to me.")
+    await update.message.reply_text(f"Welcome {user.username}! Ask admin to allow you texting to me.")
+
+
+async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Return list of all users (only for admin)."""
+    user = await get_or_create_user(update)
+    if user and (user.is_admin or user.username == ADMIN_USERNAME):
+        list_users = await get_list_users()
+        response_text = await render_list_users(list_users)
+        await update.message.reply_text(response_text)
+    else:
+        await update.message.reply_text(f"I can say it only to admin.")
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -71,6 +89,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
+    application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
 
     # on non command i.e message - echo the message on Telegram
