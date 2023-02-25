@@ -51,6 +51,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     logger.info(update)
     if update.message.text.lower() == 'ping':
         await update.message.reply_text('pong')
+        return
     user = await get_or_create_user(update)
     if user and not (user.is_admin or user.is_client or user.username == ADMIN_USERNAME):
         await update.message.reply_text('Ask admin to allow you texting to me.')
