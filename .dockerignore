@@ -2,3 +2,4 @@
 # Default ignored files
 .idea/shelf
 .idea/workspace.xml
+db.sqlite

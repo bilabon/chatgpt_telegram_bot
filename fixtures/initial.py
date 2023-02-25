@@ -10,7 +10,8 @@ CREATE TABLE "user" (
 );
 CREATE TABLE "user_message" (
     "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "text" varchar(10) NOT NULL UNIQUE, "message_id" integer NOT NULL,
+    "text" TEXT NOT NULL,
+    "message_id" integer NOT NULL,
     "time_added" datetime NOT NULL,
     "user_id" bigint NOT NULL REFERENCES "user" ("id") DEFERRABLE INITIALLY DEFERRED
 );
