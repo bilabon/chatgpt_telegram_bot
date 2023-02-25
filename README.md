@@ -1,5 +1,5 @@
 # chatgpt_telegram_bot
-HOWTO setup
+#### HOWTO setup
 ```
 git clone git@github.com:bilabon/chatgpt_telegram_bot.git
 cd chatgpt_telegram_bot
@@ -13,3 +13,21 @@ And now you neet to set BOT_TOKEN, AI_TOKEN in settings/config.py
 - AI_TOKEN from here https://platform.openai.com/account/api-keys
 - BOT_TOKEN from https://telegram.me/BotFather
 
+#### Commands for https://fly.io
+
+```
+brew install flyctl
+flyctl auth signup
+# https://www.youtube.com/watch?v=J7Fm7MdZn_E
+flyctl launch
+flyctl deploy
+
+# https://www.autodidacts.io/backup-ghost-on-fly-sftp/
+flyctl ssh sftp shell -r -a tbot
+get /bot/db.sqlite
+
+# https://fly.io/docs/flyctl/ssh-console/
+flyctl ssh console -s tbot
+
+flyctl apps restart tbot
+```
