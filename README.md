@@ -23,12 +23,13 @@ flyctl auth signup
 flyctl launch
 flyctl deploy
 
-# https://www.autodidacts.io/backup-ghost-on-fly-sftp/
+# how to download db from remote container https://www.autodidacts.io/backup-ghost-on-fly-sftp/
 flyctl ssh sftp shell -r -a tbot
 get /bot/db.sqlite
 
-# https://fly.io/docs/flyctl/ssh-console/
+# how to connect to remote console https://fly.io/docs/flyctl/ssh-console/
 flyctl ssh console -s tbot
 
+# how to restart the remote app, you should do it because after deploying sometimes run 2 instances and you get an error
 flyctl apps restart tbot
 ```
