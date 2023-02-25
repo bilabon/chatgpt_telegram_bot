@@ -31,7 +31,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
     user = await get_user_by_username(update.effective_user.username)
-    # TODO: allow only for admin: if user and user.is_admin
     if user and (user.is_admin or user.username == ADMIN_USERNAME):
         error, username_, role_name_ = await parse_setrole_message(update.message.text)
         if error:
