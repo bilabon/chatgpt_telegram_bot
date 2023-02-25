@@ -36,7 +36,6 @@ async def get_or_create_user(update: Update) -> User:
         if not user:
             time_added = datetime.now(timezone.utc).isoformat()
             role_id = 1 if tuser.username == ADMIN_USERNAME else 3
-            print('role_id', role_id)
             await db.execute(f"""
 INSERT INTO user (username, first_name, telegram_id, language_code, role_id, time_added) VALUES
 ('{tuser.username}', '{tuser.first_name}', {tuser.id}, '{tuser.language_code}', {role_id}, '{time_added}');""")
@@ -47,8 +46,7 @@ INSERT INTO user (username, first_name, telegram_id, language_code, role_id, tim
 
 async def set_user_role(update: Update, username: str, role_name='client') -> None:
     user = await get_or_create_user(update)
-    # TODO: allow only for admin: if user and user.is_admin
-    if user:
+    if user and (user.is_admin or user.username == ADMIN_USERNAME):
         async with aiosqlite.connect(DB_NAME) as db:
             role_id = USER_ROLE_CHOICES[role_name]
             await db.execute(f"UPDATE user SET role_id={role_id} WHERE username='{username}';")

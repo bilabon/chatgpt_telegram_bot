@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 from tools.ai import ask_chatgpt
 from tools.db import check_or_create_db, get_or_create_user, set_user_role, get_user_by_username
 from tools.parser import parse_setrole_message
-from settings.config import BOT_TOKEN
+from settings.config import BOT_TOKEN, ADMIN_USERNAME
 
 
 # Enable logging
@@ -32,7 +32,7 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """Send a message when the command /help is issued."""
     user = await get_user_by_username(update.effective_user.username)
     # TODO: allow only for admin: if user and user.is_admin
-    if user:
+    if user and (user.is_admin or user.username == ADMIN_USERNAME):
         error, username_, role_name_ = await parse_setrole_message(update.message.text)
         if error:
             await update.message.reply_text(error)
@@ -50,6 +50,10 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     logger.info(update)
+    user = await get_or_create_user(update)
+    if user and not (user.is_admin or user.is_client or user.username == ADMIN_USERNAME):
+        await update.message.reply_text('Ask admin to allow you texting to me.')
+        return
     response = ask_chatgpt(update.message.text)
     if response:
         await update.message.reply_text(response)

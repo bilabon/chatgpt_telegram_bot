@@ -8,4 +8,5 @@ def ask_chatgpt(message: str) -> str | None:
         model="text-davinci-003", prompt=message, temperature=0, max_tokens=500)
     print(f'ask_chat_gpt response: {response}')
     if response and response.choices and response.choices[0] and response.choices[0].text:
-        return response.choices[0].text
+        if '_split' not in response.choices[0].text:
+            return response.choices[0].text
