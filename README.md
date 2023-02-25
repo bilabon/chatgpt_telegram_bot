@@ -14,6 +14,13 @@ And now you neet to set BOT_TOKEN, AI_TOKEN in settings/config.py
 - BOT_TOKEN from https://telegram.me/BotFather
 - ADMIN_USERNAME - your username from telegram
 
+#### Info
+- The first thing an admin needs to do in a chat room is to execute the command `/start`. This command will create a database.
+- Each user who contacts the chat for the first time will be added to the database and assigned the role of `alient`. There are four roles in the bot: `admin`, `client`, `alient` and `blocked`. To communicate with ChatGPT, a user needs to have the role of `admin` or `client`.
+- A user with the role of `admin` can assign roles to other users, for example: `/setrole username client`.
+
+![Example](https://i.ibb.co/dJSLCQW/Screenshot-2023-02-25-at-23-37-31.png)
+
 #### Commands for deploying to https://fly.io
 
 ```
