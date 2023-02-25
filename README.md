@@ -14,7 +14,7 @@ And now you neet to set BOT_TOKEN, AI_TOKEN in settings/config.py
 - BOT_TOKEN from https://telegram.me/BotFather
 - ADMIN_USERNAME - your username from telegram
 
-#### Commands for https://fly.io
+#### Commands for deploying to https://fly.io
 
 ```
 brew install flyctl
