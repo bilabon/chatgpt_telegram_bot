@@ -43,12 +43,12 @@ async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_text("Help command is not implemented!")
+    await update.message.reply_text("Check out https://github.com/bilabon/chatgpt_telegram_bot#info ")
 
 
 async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /help is issued."""
-    user = await get_user_by_username(update.effective_user.username)
+    """A user with the role of admin can assign roles to other users, for example: /setrole username client"""
+    user = await get_or_create_user(update)
     if user and (user.is_admin or user.username == ADMIN_USERNAME):
         error, username_, role_name_ = await parse_setrole_message(update.message.text)
         if error:
