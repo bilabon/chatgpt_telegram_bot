@@ -1,18 +1,14 @@
 import logging
-from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
-from tools.ai import ask_chatgpt
-from tools.db import (
-    check_or_create_db,
-    get_or_create_user,
-    set_user_role,
-    get_user_by_username,
-    get_list_users,
-)
-from tools.user import render_list_users
-from tools.parser import parse_setrole_message
-from settings.config import BOT_TOKEN, ADMIN_USERNAME
 
+from settings.config import ADMIN_USERNAME, BOT_TOKEN
+from telegram import Update
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+from tools.ai import ask_chatgpt
+from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
+                      get_user_by_username, set_user_role)
+from tools.parser import parse_setrole_message
+from tools.user import render_list_users
 
 # Enable logging
 logging.basicConfig(
@@ -27,7 +23,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     """Send a message when the command /start is issued."""
     await check_or_create_db()
     user = await get_or_create_user(update)
-    await update.message.reply_text(f"Welcome {user.username}! Ask admin to allow you texting to me.")
+    await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/bilabon to allow you to talk to me.")
 
 
 async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -72,7 +68,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     user = await get_or_create_user(update)
     if user and not (user.is_admin or user.is_client or user.username == ADMIN_USERNAME):
-        await update.message.reply_text('Ask admin to allow you texting to me.')
+        await update.message.reply_text('Ask admin https://t.me/bilabon to allow you to talk to me.')
         return
     response = ask_chatgpt(update.message.text)
     if response:
