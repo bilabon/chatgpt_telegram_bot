@@ -23,7 +23,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     """Send a message when the command /start is issued."""
     await check_or_create_db()
     user = await get_or_create_user(update)
-    await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/bilabon to allow you to talk to me.")
+    await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
 
 
 async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -68,7 +68,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
     user = await get_or_create_user(update)
     if user and not (user.is_admin or user.is_client or user.username == ADMIN_USERNAME):
-        await update.message.reply_text('Ask admin https://t.me/bilabon to allow you to talk to me.')
+        await update.message.reply_text(f'Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.')
         return
     response = ask_chatgpt(update.message.text)
     if response:
