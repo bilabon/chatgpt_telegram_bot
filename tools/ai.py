@@ -10,7 +10,7 @@ def ask_chatgpt(message: str) -> str | None:
     response, text = None, None
     if GPT_MODEL == "text-davinci-003":
         response = openai.Completion.create(
-            model="text-davinci-003",
+            model=GPT_MODEL,
             prompt=message,
             temperature=1.0,
             max_tokens=2000,
@@ -20,7 +20,7 @@ def ask_chatgpt(message: str) -> str | None:
                 text = response.choices[0].text
     elif GPT_MODEL == "gpt-3.5-turbo":
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model=GPT_MODEL,
             messages=[{"role": "user", "content": message}],
         )
         if all([
