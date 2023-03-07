@@ -6,7 +6,7 @@ from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 from tools.ai import ask_chatgpt
 from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
-                      get_user_by_username, set_user_role)
+                      get_user_by_username, set_user_role, save_message)
 from tools.parser import parse_setrole_message
 from tools.user import render_list_users
 
@@ -63,15 +63,29 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
     logger.info(update)
-    if update.message.text.lower() == 'ping':
-        await update.message.reply_text('pong')
-        return
+    text_question = update.message.text
+
+    # get or create user
     user = await get_or_create_user(update)
+
+    # save question
+    await save_message(user_id=user.id, text=text_question, message_id=update.message.message_id, message_type_id=1)
+
+    # for pinging we do not call the chat API, just emulate the pong response.
+    if text_question.lower() == 'ping':
+        await update.message.reply_text('pong')
+        await save_message(user_id=user.id, text='pong', message_id=None, message_type_id=2)
+        return
+
+    # user validation
     if user and not (user.is_admin or user.is_client or user.username == ADMIN_USERNAME):
         await update.message.reply_text(f'Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.')
         return
-    response = ask_chatgpt(update.message.text)
+
+    # asking chatgpt
+    response = ask_chatgpt(text_question)
     if response:
+        await save_message(user_id=user.id, text=response, message_id=None, message_type_id=2)
         await update.message.reply_text(response)
     else:
         await update.message.reply_text('500 error')

@@ -1,7 +1,7 @@
 CREATE_TABLES_SQL = """CREATE TABLE "user_role" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "name" varchar(10) NOT NULL UNIQUE);
 CREATE TABLE "user" (
     "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "username" varchar(255) NOT NULL UNIQUE,
+    "username" varchar(255) NOT NULL,
     "first_name" varchar(255) NOT NULL,
     "telegram_id" integer NOT NULL UNIQUE,
     "language_code" varchar(2) NOT NULL,
@@ -11,7 +11,8 @@ CREATE TABLE "user" (
 CREATE TABLE "user_message" (
     "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
     "text" TEXT NOT NULL,
-    "message_id" integer NOT NULL,
+    "message_id" integer NULL,
+    "message_type_id" integer NOT NULL, -- 1 - question, 2 - answer
     "time_added" datetime NOT NULL,
     "user_id" bigint NOT NULL REFERENCES "user" ("id") DEFERRABLE INITIALLY DEFERRED
 );
