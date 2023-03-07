@@ -40,4 +40,13 @@ flyctl ssh console -s tbot
 
 # how to restart the remote app, you should do it because after deploying sometimes run 2 instances and you get an error
 flyctl apps restart tbot
+
+# to stop app:
+# https://community.fly.io/t/is-it-possible-to-disable-an-app-without-deleting-it/3662/2
+flyctl scale count 0
+fly status --all
+fly vm stop e2dc2b0c
+
+# to start app:
+flyctl scale count 1
 ```
