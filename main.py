@@ -1,5 +1,4 @@
 import logging
-
 from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from telegram import Update
 from telegram.ext import (Application, CommandHandler, ContextTypes,
@@ -10,10 +9,6 @@ from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
 from tools.parser import parse_setrole_message
 from tools.user import render_list_users
 
-# Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
 logger = logging.getLogger(__name__)
 
 
@@ -110,4 +105,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    )
     main()
