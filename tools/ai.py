@@ -24,15 +24,18 @@ def is_chatgpt_context_on(user_id: int) -> bool:
         return False
 
 
-def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1):
+def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) -> list | None:
     """Here we are generating a list of messages that will be sent to the chat. If the context is off,
     there will be only one message with role='user'. If the context is on, we remember the context and
     add user questions with role='user' and chat responses with role='assistant'."""
+    _is_chatgpt_context_on = is_chatgpt_context_on(user_id)
+    if not is_chatgpt_context_on and role_id == 2:
+        return
     messages = [{
         'role': GPT_CONTEXT_ROLES[role_id],
         'content': message,
     }]
-    if is_chatgpt_context_on(user_id):
+    if _is_chatgpt_context_on:
         messages = GPT_CONTEXT[user_id] + messages
     return messages
 
