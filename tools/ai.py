@@ -14,7 +14,8 @@ GPT_CONTEXT_ROLES = {
 def is_chatgpt_context_on(user_id: int) -> bool:
     """Here we are checking whether the context is on or off for a specific user. We consider the context
     to be on if the user_id key is present in the GPT_CONTEXT variable.
-    + Added restriction on context len. It shouldn't be more than GPT_CONTEXT_MAXLEN messages."""
+    + Added a limit to the context length. If the user exceeds the context length, the context
+    will be wiped and disabled, and the user will need to enable the context again with a command '/context on'."""
     if user_id in GPT_CONTEXT:
         if len(GPT_CONTEXT[user_id]) > GPT_CONTEXT_MAXLEN:
             GPT_CONTEXT.pop(user_id)
