@@ -15,14 +15,22 @@ logger = logging.getLogger(__name__)
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
+    """Send a message when the command /start is issued.
+    Example:
+        /start
+    """
     await check_or_create_db()
     user = await get_or_create_user(update)
     await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
 
 
 async def contex_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
+    """Here we turn on and off the context for current user. If the context is already on, then we additionally
+    clear the context. Works only with gpt-3.5-turbo.
+    Example:
+        /contex on
+        /contex off
+    """
     user = await get_or_create_user(update)
     is_message_on = parse_context_message(update.message.text)
     if is_message_on:
@@ -40,7 +48,10 @@ async def contex_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Return list of all users (only for admin)."""
+    """Return list of all users (only for admin).
+    Example:
+        /list
+    """
     user = await get_or_create_user(update)
     if user and (user.is_admin or user.username == ADMIN_USERNAME):
         list_users = await get_list_users()
@@ -56,7 +67,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """A user with the role of admin can assign roles to other users, for example: /setrole username client"""
+    """A user with the role of admin can assign roles to other users.
+    Example:
+        /setrole username client
+    """
     user = await get_or_create_user(update)
     if user and (user.is_admin or user.username == ADMIN_USERNAME):
         error, username_, role_name_ = await parse_setrole_message(update.message.text)
