@@ -38,6 +38,7 @@ def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) 
     }]
     if _is_chatgpt_context_on:
         messages = GPT_CONTEXT[user_id] + messages
+        GPT_CONTEXT[user_id] = messages
     return messages
 
 
