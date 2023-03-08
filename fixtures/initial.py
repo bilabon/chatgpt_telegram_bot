@@ -21,5 +21,5 @@ CREATE INDEX "user_message_user_id_8a912feb" ON "user_message" ("user_id");
 INSERT INTO `user_role` (`id`, `name`) VALUES
     (1, 'admin'),
     (2, 'client'),
-    (3, 'alient'),
+    (3, 'alien'),
     (4, 'blocked');"""

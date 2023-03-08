@@ -1,7 +1,7 @@
 USER_ROLE_CHOICES = {
     'admin': 1,
     'client': 2,
-    'alient': 3,
+    'alien': 3,
     'blocked': 4,
 }
 
