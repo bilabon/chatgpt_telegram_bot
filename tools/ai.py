@@ -18,7 +18,7 @@ def is_chatgpt_context_on(user_id: int) -> bool:
     will be wiped and disabled, and the user will need to enable the context again with a command '/context on'."""
     if user_id in GPT_CONTEXT:
         if len(GPT_CONTEXT[user_id]) > GPT_CONTEXT_MAXLEN:
-            GPT_CONTEXT.pop(user_id)
+            GPT_CONTEXT.pop(user_id, None)
             return False
         return True
     else:

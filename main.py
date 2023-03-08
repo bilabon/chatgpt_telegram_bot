@@ -36,14 +36,14 @@ async def contex_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if is_message_on:
         if is_chatgpt_context_on(user.id):
             # here we reset context for the user
-            GPT_CONTEXT.pop(user.id)
+            GPT_CONTEXT.pop(user.id, None)
             GPT_CONTEXT[user.id] = []
             await update.message.reply_text("Context is cleared and enabled.")
         else:
             GPT_CONTEXT[user.id] = []
             await update.message.reply_text("Context is enabled.")
     else:
-        GPT_CONTEXT.pop(user.id)
+        GPT_CONTEXT.pop(user.id, None)
         await update.message.reply_text("Context is disabled.")
 
 
