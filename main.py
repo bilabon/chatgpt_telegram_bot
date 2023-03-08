@@ -24,7 +24,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
 
 
-async def contex_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def context_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Here we turn on and off the context for current user. If the context is already on, then we additionally
     clear the context. Works only with gpt-3.5-turbo.
     Example:
