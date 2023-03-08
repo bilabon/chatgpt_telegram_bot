@@ -18,5 +18,3 @@ async def parse_setrole_message(message: str) -> tuple:
 
 async def parse_context_message(message: str) -> bool:
     return True if "on" in message.lower() else False
-
-
