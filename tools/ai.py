@@ -4,6 +4,7 @@ from settings.config import AI_TOKEN, GPT_MODEL
 
 logger = logging.getLogger(__name__)
 GPT_CONTEXT = {}
+GPT_CONTEXT_MAXLEN = 20
 GPT_CONTEXT_ROLES = {
     1: 'user',
     2: 'assistant',
@@ -12,8 +13,15 @@ GPT_CONTEXT_ROLES = {
 
 def is_chatgpt_context_on(user_id: int) -> bool:
     """Here we are checking whether the context is on or off for a specific user. We consider the context
-    to be on if the user_id key is present in the GPT_CONTEXT variable."""
-    return True if user_id in GPT_CONTEXT else False
+    to be on if the user_id key is present in the GPT_CONTEXT variable.
+    + Added restriction on context len. It shouldn't be more than GPT_CONTEXT_MAXLEN messages."""
+    if user_id in GPT_CONTEXT:
+        if len(GPT_CONTEXT[user_id]) > GPT_CONTEXT_MAXLEN:
+            GPT_CONTEXT.pop(user_id)
+            return False
+        return True
+    else:
+        return False
 
 
 def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1):
