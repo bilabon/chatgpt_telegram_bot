@@ -3,10 +3,10 @@ from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from telegram import Update
 from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
-from tools.ai import ask_chatgpt
+from tools.ai import ask_chatgpt, is_chatgpt_context_on, GPT_CONTEXT
 from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
                       get_user_by_username, set_user_role, save_message)
-from tools.parser import parse_setrole_message
+from tools.parser import parse_setrole_message, parse_context_message
 from tools.user import render_list_users
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,24 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     await check_or_create_db()
     user = await get_or_create_user(update)
     await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
+
+
+async def contex_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a message when the command /start is issued."""
+    user = await get_or_create_user(update)
+    is_message_on = parse_context_message(update.message.text)
+    if is_message_on:
+        if is_chatgpt_context_on(user.id):
+            # here we reset context for the user
+            GPT_CONTEXT.pop(user.id)
+            GPT_CONTEXT[user.id] = []
+            await update.message.reply_text("Context is cleared and enabled.")
+        else:
+            GPT_CONTEXT[user.id] = []
+            await update.message.reply_text("Context is enabled.")
+    else:
+        GPT_CONTEXT.pop(user.id)
+        await update.message.reply_text("Context is disabled.")
 
 
 async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -78,7 +96,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     # asking chatgpt
-    response = ask_chatgpt(text_question)
+    response = ask_chatgpt(user_id=user.id, message=text_question)
     if response:
         await save_message(user_id=user.id, text=response, message_id=None, message_type_id=2)
         await update.message.reply_text(response)
@@ -93,6 +111,7 @@ def main() -> None:
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CommandHandler("context", context_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))

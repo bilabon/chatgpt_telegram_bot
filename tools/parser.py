@@ -14,3 +14,9 @@ async def parse_setrole_message(message: str) -> tuple:
     if role not in USER_ROLE_CHOICES.keys():
         return "Wrong role name!", "", ""
     return "", username, role
+
+
+async def parse_context_message(message: str) -> bool:
+    return True if "on" in message.lower() else False
+
+
