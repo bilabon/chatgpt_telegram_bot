@@ -52,7 +52,7 @@ async def get_or_create_user(update: Update) -> User:
             role_id = 1 if tuser.username == ADMIN_USERNAME else 3
             await db.execute(f"""
 INSERT INTO user (username, first_name, telegram_id, language_code, role_id, time_added) VALUES
-('{tuser.username}', '{tuser.first_name}', {tuser.id}, '{tuser.language_code}', {role_id}, '{time_added}');""")
+('{tuser.username or tuser.id}', '{tuser.first_name}', {tuser.id}, '{tuser.language_code}', {role_id}, '{time_added}');""")
             await db.commit()
         user = await get_user_by_tid(tuser.id, db)
         return user
