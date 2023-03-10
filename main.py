@@ -1,8 +1,10 @@
 import logging
-from settings.config import ADMIN_USERNAME, BOT_TOKEN
+
 from telegram import Update
 from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
+
+from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from tools.ai import ask_chatgpt, is_chatgpt_context_on, GPT_CONTEXT
 from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
                       get_user_by_username, set_user_role, save_message)
@@ -21,7 +23,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     """
     await check_or_create_db()
     user = await get_or_create_user(update)
-    await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
+    await update.message.reply_text(
+        f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
 
 
 async def context_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -130,7 +133,7 @@ def main() -> None:
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
 
-    # on non command i.e message - echo the message on Telegram
+    # on non command i.e. message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     # Run the bot until the user presses Ctrl-C

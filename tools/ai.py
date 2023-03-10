@@ -16,13 +16,13 @@ def is_chatgpt_context_on(user_id: int) -> bool:
     to be on if the user_id key is present in the GPT_CONTEXT variable.
     + Added a limit to the context length. If the user exceeds the context length, the context
     will be wiped and disabled, and the user will need to enable the context again with a command '/context on'."""
-    if user_id in GPT_CONTEXT:
-        if len(GPT_CONTEXT[user_id]) > GPT_CONTEXT_MAXLEN:
+    user_context = GPT_CONTEXT.get(user_id)
+    if user_context:
+        if len(user_context) <= GPT_CONTEXT_MAXLEN:
+            return True
+        else:
             GPT_CONTEXT.pop(user_id, None)
-            return False
-        return True
-    else:
-        return False
+    return False
 
 
 def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) -> list | None:
