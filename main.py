@@ -129,6 +129,8 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("context", context_command))
+    application.add_handler(CommandHandler("contexton", context_command))
+    application.add_handler(CommandHandler("contextoff", context_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
