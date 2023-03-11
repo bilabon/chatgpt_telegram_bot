@@ -1,12 +1,14 @@
 import logging
-from settings.config import ADMIN_USERNAME, BOT_TOKEN
+
 from telegram import Update
 from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
-from tools.ai import ask_chatgpt
+
+from settings.config import ADMIN_USERNAME, BOT_TOKEN
+from tools.ai import ask_chatgpt, is_chatgpt_context_on, GPT_CONTEXT
 from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
                       get_user_by_username, set_user_role, save_message)
-from tools.parser import parse_setrole_message
+from tools.parser import parse_setrole_message, parse_context_message
 from tools.user import render_list_users
 
 logger = logging.getLogger(__name__)
@@ -15,14 +17,44 @@ logger = logging.getLogger(__name__)
 # Define a few command handlers. These usually take the two arguments update and
 # context.
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
+    """Send a message when the command /start is issued.
+    Example:
+        /start
+    """
     await check_or_create_db()
     user = await get_or_create_user(update)
-    await update.message.reply_text(f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
+    await update.message.reply_text(
+        f"Welcome {user.username}! Ask admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me.")
+
+
+async def context_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Here we turn on and off the context for current user. If the context is already on, then we additionally
+    clear the context. Works only with gpt-3.5-turbo.
+    Example:
+        /contex on
+        /contex off
+    """
+    user = await get_or_create_user(update)
+    is_message_on = await parse_context_message(update.message.text)
+    if is_message_on:
+        if is_chatgpt_context_on(user.id):
+            # here we reset context for the user
+            GPT_CONTEXT.pop(user.id, None)
+            GPT_CONTEXT[user.id] = []
+            await update.message.reply_text("Context is cleared and enabled.")
+        else:
+            GPT_CONTEXT[user.id] = []
+            await update.message.reply_text("Context is enabled.")
+    else:
+        GPT_CONTEXT.pop(user.id, None)
+        await update.message.reply_text("Context is disabled.")
 
 
 async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Return list of all users (only for admin)."""
+    """Return list of all users (only for admin).
+    Example:
+        /list
+    """
     user = await get_or_create_user(update)
     if user and (user.is_admin or user.username == ADMIN_USERNAME):
         list_users = await get_list_users()
@@ -38,7 +70,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 
 
 async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """A user with the role of admin can assign roles to other users, for example: /setrole username client"""
+    """A user with the role of admin can assign roles to other users.
+    Example:
+        /setrole username client
+    """
     user = await get_or_create_user(update)
     if user and (user.is_admin or user.username == ADMIN_USERNAME):
         error, username_, role_name_ = await parse_setrole_message(update.message.text)
@@ -57,9 +92,9 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
-    logger.info(update)
+    logger.info('echo() update: ', update)
+    logger.info('echo() GPT_CONTEXT: ', GPT_CONTEXT)
     text_question = update.message.text
-
     # get or create user
     user = await get_or_create_user(update)
 
@@ -78,7 +113,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     # asking chatgpt
-    response = ask_chatgpt(text_question)
+    response = ask_chatgpt(user_id=user.id, message=text_question)
     if response:
         await save_message(user_id=user.id, text=response, message_id=None, message_type_id=2)
         await update.message.reply_text(response)
@@ -93,11 +128,12 @@ def main() -> None:
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CommandHandler("context", context_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
 
-    # on non command i.e message - echo the message on Telegram
+    # on non command i.e. message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
     # Run the bot until the user presses Ctrl-C
