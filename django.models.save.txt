@@ -3,8 +3,7 @@ from django.db import models
 USER_ROLE_CHOICES = (
     (1, 'admin'),
     (2, 'client'),
-    (3, 'alien
-    '),
+    (3, 'alien'),
     (4, 'blocked'),
 )
 
