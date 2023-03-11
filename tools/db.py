@@ -87,6 +87,6 @@ async def save_message(user_id: int, text: str, message_id: int | None = None, m
         sql = """
             INSERT INTO user_message (user_id, text, message_id, message_type_id, time_added)
             VALUES (?, ?, ?, ?, ?);"""
-        args = (user_id, text, message_id, message_type_id, time_added)
+        args = (user_id, text.strip(), message_id, message_type_id, time_added)
         await conn.execute(sql, args)
         await conn.commit()

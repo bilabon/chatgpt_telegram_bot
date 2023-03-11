@@ -17,7 +17,7 @@ def is_chatgpt_context_on(user_id: int) -> bool:
     + Added a limit to the context length. If the user exceeds the context length, the context
     will be wiped and disabled, and the user will need to enable the context again with a command '/context on'."""
     user_context = GPT_CONTEXT.get(user_id)
-    if user_context:
+    if user_context is not None:
         if len(user_context) <= GPT_CONTEXT_MAXLEN:
             return True
         else:
@@ -30,7 +30,7 @@ def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) 
     there will be only one message with role='user'. If the context is on, we remember the context and
     add user questions with role='user' and chat responses with role='assistant'."""
     _is_chatgpt_context_on = is_chatgpt_context_on(user_id)
-    if not is_chatgpt_context_on and role_id == 2:
+    if not _is_chatgpt_context_on and role_id == 2:
         return
     messages = [{
         'role': GPT_CONTEXT_ROLES[role_id],

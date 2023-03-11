@@ -35,7 +35,7 @@ async def context_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         /contex off
     """
     user = await get_or_create_user(update)
-    is_message_on = parse_context_message(update.message.text)
+    is_message_on = await parse_context_message(update.message.text)
     if is_message_on:
         if is_chatgpt_context_on(user.id):
             # here we reset context for the user
@@ -92,9 +92,9 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
-    logger.info(update)
+    logger.info('echo() update: ', update)
+    logger.info('echo() GPT_CONTEXT: ', GPT_CONTEXT)
     text_question = update.message.text
-
     # get or create user
     user = await get_or_create_user(update)
 
