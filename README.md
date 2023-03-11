@@ -23,9 +23,9 @@ And now you neet to set BOT_TOKEN, AI_TOKEN, ADMIN_USERNAME in settings/config.p
 - The command `/context on` will turn on the context support. [Example](https://github.com/bilabon/chatgpt_telegram_bot/edit/main/README.md#-1).
 - The command `/context off` will turn off the context support. 
 
-#### ![Example](https://i.ibb.co/dJSLCQW/Screenshot-2023-02-25-at-23-37-31.png)
+#### ![pic1](https://i.ibb.co/dJSLCQW/Screenshot-2023-02-25-at-23-37-31.png)
 
-#### ![Example](https://i.ibb.co/mhVLGhd/Screenshot-2023-03-11-at-18-36-54.png)
+#### ![pic2](https://i.ibb.co/mhVLGhd/Screenshot-2023-03-11-at-18-36-54.png)
 
 #### Commands for deploying to https://fly.io
 
