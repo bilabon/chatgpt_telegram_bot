@@ -1,10 +1,16 @@
+import logging
+import os
 from datetime import datetime, timezone
+
 import aiosqlite
 from aiosqlite.core import Connection
 from telegram import Update
+
+from fixtures.initial import CREATE_TABLES_SQL
 from models import USER_ROLE_CHOICES, User
 from settings.config import ADMIN_USERNAME, DB_NAME
-from fixtures.initial import CREATE_TABLES_SQL
+
+logger = logging.getLogger(__name__)
 
 
 def get_db() -> aiosqlite.Connection:
@@ -12,8 +18,8 @@ def get_db() -> aiosqlite.Connection:
 
 
 async def check_or_create_db() -> None:
-    if not DB_NAME.exists():
-        print(f"{DB_NAME} not found!")
+    if not os.path.exists(DB_NAME):
+        logger.info(f"{DB_NAME} not found!")
         async with get_db() as conn:
             await conn.executescript(CREATE_TABLES_SQL)
             await conn.commit()
