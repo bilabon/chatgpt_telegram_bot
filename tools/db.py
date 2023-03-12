@@ -53,8 +53,8 @@ async def get_or_create_user(update: Update) -> User:
             sql = """
                 INSERT INTO user (username, first_name, telegram_id, language_code, role_id, time_added)
                 VALUES (?, ?, ?, ?, ?, ?);"""
-            args = (tuser.username or tuser.id, tuser.first_name, tuser.id,
-                    tuser.language_code, role_id, time_added)
+            args = (tuser.username or tuser.id, tuser.first_name or '', tuser.id,
+                    tuser.language_code or '', role_id, time_added)
             await conn.execute(sql, args)
             await conn.commit()
         user = await get_user_by_tid(tuser.id)
