@@ -25,7 +25,7 @@ And now you neet to set BOT_TOKEN, AI_TOKEN, ADMIN_USERNAME in settings/config.p
 
 #### ![pic1](https://i.ibb.co/dJSLCQW/Screenshot-2023-02-25-at-23-37-31.png)
 
-#### ![pic2](https://i.ibb.co/mhVLGhd/Screenshot-2023-03-11-at-18-36-54.png)
+#### ![pic2](https://i.ibb.co/gmBrYNL/Screenshot-2023-03-12-at-12-58-12.png)
 
 #### Commands for deploying to https://fly.io
 
