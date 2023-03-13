@@ -114,13 +114,14 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     # asking chatgpt
 
-    try:
-        text, response = await ask_chatgpt(update, user_id=user.id, message=text_question)
-    except Exception as err:
-        msg = f'500 error: {err}'
-        await update.message.reply_text(msg)
-        await disable_context_for_user(update, user.id)
-        return
+    text, response = await ask_chatgpt(update, user=user, message=text_question)
+    # try:
+    #     text, response = await ask_chatgpt(update, user=user, message=text_question)
+    # except Exception as err:
+    #     msg = f'500 error: {err}'
+    #     await update.message.reply_text(msg)
+    #     await disable_context_for_user(update, user.id)
+    #     return
 
     if text:
         await save_message(user_id=user.id, data=response)
