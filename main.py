@@ -5,7 +5,7 @@ from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
 from settings.config import ADMIN_USERNAME, BOT_TOKEN
-from tools.ai import ask_chatgpt, is_chatgpt_context_on, GPT_CONTEXT
+from tools.ai import ask_chatgpt, is_chatgpt_context_on, GPT_CONTEXT, disable_context_for_user, clear_context_for_user
 from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
                       get_user_by_username, set_user_role, save_message)
 from tools.parser import parse_setrole_message, parse_context_message
@@ -37,16 +37,16 @@ async def context_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user = await get_or_create_user(update)
     is_message_on = await parse_context_message(update.message.text)
     if is_message_on:
-        if is_chatgpt_context_on(user.id):
+        if await is_chatgpt_context_on(user.id):
             # here we reset context for the user
             GPT_CONTEXT.pop(user.id, None)
-            GPT_CONTEXT[user.id] = []
+            await clear_context_for_user(user.id)
             await update.message.reply_text("Context is cleared and enabled.")
         else:
-            GPT_CONTEXT[user.id] = []
+            await clear_context_for_user(user.id)
             await update.message.reply_text("Context is enabled.")
     else:
-        GPT_CONTEXT.pop(user.id, None)
+        disable_context_for_user(user.id)
         await update.message.reply_text("Context is disabled.")
 
 
@@ -92,8 +92,8 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Echo the user message."""
-    logger.info('echo() update: ', update)
-    logger.info('echo() GPT_CONTEXT: ', GPT_CONTEXT)
+    logger.info(f'echo() update: {update.to_json()}')
+    logger.info(f'echo() GPT_CONTEXT: {GPT_CONTEXT}')
     text_question = update.message.text
     # get or create user
     user = await get_or_create_user(update)
@@ -113,12 +113,19 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     # asking chatgpt
-    response = ask_chatgpt(user_id=user.id, message=text_question)
+    try:
+        response = await ask_chatgpt(user_id=user.id, message=text_question)
+    except Exception as err:
+        await update.message.reply_text(f'500 error: {err}')
+        await disable_context_for_user(user.id)
+        return
+
     if response:
         await save_message(user_id=user.id, text=response, message_id=None, message_type_id=2)
         await update.message.reply_text(response)
     else:
         await update.message.reply_text('500 error')
+        await disable_context_for_user(user.id)
 
 
 def main() -> None:

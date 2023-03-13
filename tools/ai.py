@@ -11,7 +11,15 @@ GPT_CONTEXT_ROLES = {
 }
 
 
-def is_chatgpt_context_on(user_id: int) -> bool:
+async def disable_context_for_user(user_id: int):
+    GPT_CONTEXT.pop(user_id, None)
+
+
+async def clear_context_for_user(user_id: int):
+    GPT_CONTEXT[user_id] = []
+
+
+async def is_chatgpt_context_on(user_id: int) -> bool:
     """Here we are checking whether the context is on or off for a specific user. We consider the context
     to be on if the user_id key is present in the GPT_CONTEXT variable.
     + Added a limit to the context length. If the user exceeds the context length, the context
@@ -21,15 +29,15 @@ def is_chatgpt_context_on(user_id: int) -> bool:
         if len(user_context) <= GPT_CONTEXT_MAXLEN:
             return True
         else:
-            GPT_CONTEXT.pop(user_id, None)
+            await disable_context_for_user(user_id)
     return False
 
 
-def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) -> list | None:
+async def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) -> list | None:
     """Here we are generating a list of messages that will be sent to the chat. If the context is off,
     there will be only one message with role='user'. If the context is on, we remember the context and
     add user questions with role='user' and chat responses with role='assistant'."""
-    _is_chatgpt_context_on = is_chatgpt_context_on(user_id)
+    _is_chatgpt_context_on = await is_chatgpt_context_on(user_id)
     if not _is_chatgpt_context_on and role_id == 2:
         return
     messages = [{
@@ -42,7 +50,7 @@ def get_or_update_chatgpt_context(message: str, user_id: int, role_id: int = 1) 
     return messages
 
 
-def ask_chatgpt(user_id: int, message: str) -> str | None:
+async def ask_chatgpt(user_id: int, message: str) -> str | None:
     openai.api_key = AI_TOKEN
     response, text = None, None
     if GPT_MODEL == "text-davinci-003":
@@ -56,7 +64,7 @@ def ask_chatgpt(user_id: int, message: str) -> str | None:
             if '_split' not in response.choices[0].text:
                 text = response.choices[0].text
     elif GPT_MODEL == "gpt-3.5-turbo":
-        messages = get_or_update_chatgpt_context(message=message, user_id=user_id, role_id=1)
+        messages = await get_or_update_chatgpt_context(message=message, user_id=user_id, role_id=1)
         response = openai.ChatCompletion.create(
             model=GPT_MODEL,
             messages=messages,
@@ -69,6 +77,6 @@ def ask_chatgpt(user_id: int, message: str) -> str | None:
             response.choices[0].message.content
         ]):
             text = response.choices[0].message.content
-            get_or_update_chatgpt_context(message=text, user_id=user_id, role_id=2)
+            await get_or_update_chatgpt_context(message=text, user_id=user_id, role_id=2)
     logger.info(f'ask_chat_gpt() {GPT_MODEL} response: {response}')
     return text
