@@ -1,3 +1,5 @@
+from tools.db import get_db
+
 USER_ROLE_CHOICES = {
     'admin': 1,
     'client': 2,
@@ -59,6 +61,16 @@ class User:
 
     def get_mode_name(self):
         return list(USER_MODE_CHOICES.keys())[list(USER_MODE_CHOICES.values()).index(self.mode_id)]
+
+    async def save_mode_name(self, name):
+        if name in USER_MODE_CHOICES:
+            async with get_db() as conn:
+                mode_id = USER_MODE_CHOICES[name]
+                sql = "UPDATE user SET mode_id=? WHERE telegram_id=?;"
+                args = (mode_id, self.telegram_id)
+                await conn.execute(sql, args)
+                await conn.commit()
+            self.mode_id = mode_id
 
     def get_mode_config(self):
         return USER_MODES_CONFIGS[self.get_mode_name()]

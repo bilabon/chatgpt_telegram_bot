@@ -20,20 +20,24 @@ GPT_CONTEXT_ROLES = {
 }
 
 
-async def disable_context_for_user(update: Update, user_id: int, msg: str = "Context is disabled."):
+async def disable_context_for_user(update: Update, user_id: int, msg: str = "Context is disabled.",
+                                   silent: bool = False):
     GPT_CONTEXT.pop(user_id, None)
-    await update.message.reply_text(msg)
-
-
-async def clear_context_for_user(update: Update, user_id: int, msg: str = "Context is cleared."):
-    if user_id in GPT_CONTEXT:
-        GPT_CONTEXT[user_id] = []
+    if not silent:
         await update.message.reply_text(msg)
 
 
-async def enable_context_for_user(update: Update, user_id: int, msg: str = "Context is enabled."):
+async def clear_context_for_user(update: Update, user_id: int, msg: str = "Context is cleared.", silent: bool = False):
+    if user_id in GPT_CONTEXT:
+        GPT_CONTEXT[user_id] = []
+        if not silent:
+            await update.message.reply_text(msg)
+
+
+async def enable_context_for_user(update: Update, user_id: int, msg: str = "Context is enabled.", silent: bool = False):
     GPT_CONTEXT[user_id] = []
-    await update.message.reply_text(msg)
+    if not silent:
+        await update.message.reply_text(msg)
 
 
 async def is_context_enabled(update: Update, user_id: int) -> bool:

@@ -1,18 +1,21 @@
 import logging
 
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.constants import ParseMode
 from telegram.ext import (Application, CommandHandler, ContextTypes,
-                          MessageHandler, filters)
+                          MessageHandler, filters, CallbackQueryHandler, CallbackContext)
 
 from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from tools.ai import (
     ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
     enable_context_for_user, )
-from tools.db import (
-    check_or_create_db, get_list_users, get_or_create_user,
+from tools.db import check_or_create_db
+from tools.sql import (
+    get_list_users, get_or_create_user,
     get_user_by_username, set_user_role, save_message)
 from tools.parser import parse_setrole_message, parse_context_message
 from tools.user import render_list_users
+from models import USER_MODES_CONFIGS
 
 logger = logging.getLogger(__name__)
 
@@ -131,6 +134,33 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await disable_context_for_user(update, user.id)
 
 
+async def show_chat_modes_handle(update: Update, context: CallbackContext):
+    user = await get_or_create_user(update)
+
+    keyboard = []
+    for mode_name, conf in USER_MODES_CONFIGS.items():
+        keyboard.append([InlineKeyboardButton(conf['name'], callback_data=f"set_chat_mode|{mode_name}")])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Select chat mode:", reply_markup=reply_markup)
+
+
+async def set_chat_mode_handle(update: Update, context: CallbackContext):
+    user = await get_or_create_user(update)
+
+    query = update.callback_query
+    await query.answer()
+    mode_name = query.data.split("|")[1]
+
+    await query.edit_message_text(
+        f"<b>{user.get_mode_config()['name']}</b> chat mode is set",
+        parse_mode=ParseMode.HTML
+    )
+    await disable_context_for_user(update=update, user_id=user.id, silent=True)
+    await user.save_mode_name(mode_name)
+    user = await get_or_create_user(update)
+    await query.edit_message_text(user.get_mode_config()['welcome_message'], parse_mode=ParseMode.HTML)
+
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
@@ -144,6 +174,9 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
+
+    application.add_handler(CommandHandler("mode", show_chat_modes_handle))
+    application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
 
     # on non command i.e. message - echo the message on Telegram
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
