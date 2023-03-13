@@ -1,13 +1,11 @@
 import json
 import logging
-import os
 from datetime import datetime, timezone
 
 from aiosqlite.core import Connection
 from openai.openai_object import OpenAIObject
 from telegram import Update
 
-from fixtures.initial import CREATE_TABLES_SQL
 from models import USER_ROLE_CHOICES, User
 from settings.config import ADMIN_USERNAME
 from tools.db import get_db

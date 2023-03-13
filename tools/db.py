@@ -2,7 +2,7 @@ import aiosqlite
 import logging
 import os
 from fixtures.initial import CREATE_TABLES_SQL
-from settings.config import ADMIN_USERNAME, DB_NAME
+from settings.config import DB_NAME
 
 logger = logging.getLogger(__name__)
 
