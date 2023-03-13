@@ -20,8 +20,10 @@ class User(models.Model):
     first_name = models.CharField(max_length=255)
     telegram_id = models.IntegerField()
     language_code = models.CharField(max_length=2, default='')
-    role = models.ForeignKey('UserRole', on_delete=models.CASCADE)
+    role = models.ForeignKey('UserRole', on_delete=models.CASCADE, default=2)
     time_added = models.DateTimeField(auto_now_add=True)
+    data = models.TextField(default=None)
+    total_tokens = models.IntegerField(default=10000)
 
     class Meta:
         db_table = 'user'
@@ -29,9 +31,11 @@ class User(models.Model):
 
 class UserMessage(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
-    text = models.TextField()
+    text = models.TextField(default='')
     message_id = models.IntegerField()
     time_added = models.DateTimeField(auto_now_add=True)
+    data = models.TextField(default=None)
+    total_tokens = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'user_message'

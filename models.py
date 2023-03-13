@@ -7,7 +7,7 @@ USER_ROLE_CHOICES = {
 
 
 class User:
-    def __init__(self, _id, username, first_name, telegram_id, language_code, time_added, role_id):
+    def __init__(self, _id, username, first_name, telegram_id, language_code, time_added, role_id, total_tokens):
         self.id = _id
         self.username = username
         self.first_name = first_name
@@ -15,6 +15,7 @@ class User:
         self.language_code = language_code
         self.time_added = time_added
         self.role_id = role_id
+        self.total_tokens = total_tokens
 
     @property
     def is_admin(self):

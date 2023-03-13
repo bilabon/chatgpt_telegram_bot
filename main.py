@@ -5,9 +5,12 @@ from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 
 from settings.config import ADMIN_USERNAME, BOT_TOKEN
-from tools.ai import ask_chatgpt, is_chatgpt_context_on, GPT_CONTEXT, disable_context_for_user, clear_context_for_user
-from tools.db import (check_or_create_db, get_list_users, get_or_create_user,
-                      get_user_by_username, set_user_role, save_message)
+from tools.ai import (
+    ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
+    enable_context_for_user, )
+from tools.db import (
+    check_or_create_db, get_list_users, get_or_create_user,
+    get_user_by_username, set_user_role, save_message)
 from tools.parser import parse_setrole_message, parse_context_message
 from tools.user import render_list_users
 
@@ -37,17 +40,13 @@ async def context_command(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     user = await get_or_create_user(update)
     is_message_on = await parse_context_message(update.message.text)
     if is_message_on:
-        if await is_chatgpt_context_on(user.id):
+        if await is_context_enabled(user.id):
             # here we reset context for the user
-            GPT_CONTEXT.pop(user.id, None)
-            await clear_context_for_user(user.id)
-            await update.message.reply_text("Context is cleared and enabled.")
+            await clear_context_for_user(update, user.id, "Context is cleared and enabled.")
         else:
-            await clear_context_for_user(user.id)
-            await update.message.reply_text("Context is enabled.")
+            await enable_context_for_user(update, user.id)
     else:
-        disable_context_for_user(user.id)
-        await update.message.reply_text("Context is disabled.")
+        await disable_context_for_user(update, user.id)
 
 
 async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -99,12 +98,13 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = await get_or_create_user(update)
 
     # save question
-    await save_message(user_id=user.id, text=text_question, message_id=update.message.message_id, message_type_id=1)
+    await save_message(user_id=user.id, data=update)
+    #    user_id=user.id, text=text_question, message_id=update.message.message_id, message_type_id=1)
 
     # for pinging we do not call the chat API, just emulate the pong response.
     if text_question.lower() == 'ping':
         await update.message.reply_text('pong')
-        await save_message(user_id=user.id, text='pong', message_id=None, message_type_id=2)
+        # await save_message(user_id=user.id, text='pong', message_id=None, message_type_id=2)
         return
 
     # user validation
@@ -113,19 +113,21 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     # asking chatgpt
+
     try:
-        response = await ask_chatgpt(user_id=user.id, message=text_question)
+        text, response = await ask_chatgpt(update, user_id=user.id, message=text_question)
     except Exception as err:
-        await update.message.reply_text(f'500 error: {err}')
-        await disable_context_for_user(user.id)
+        msg = f'500 error: {err}'
+        await update.message.reply_text(msg)
+        await disable_context_for_user(update, user.id)
         return
 
-    if response:
-        await save_message(user_id=user.id, text=response, message_id=None, message_type_id=2)
-        await update.message.reply_text(response)
+    if text:
+        await save_message(user_id=user.id, data=response)
+        await update.message.reply_text(text)
     else:
         await update.message.reply_text('500 error')
-        await disable_context_for_user(user.id)
+        await disable_context_for_user(update, user.id)
 
 
 def main() -> None:

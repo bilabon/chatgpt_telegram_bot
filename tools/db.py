@@ -1,9 +1,11 @@
+import json
 import logging
 import os
 from datetime import datetime, timezone
 
 import aiosqlite
 from aiosqlite.core import Connection
+from openai.openai_object import OpenAIObject
 from telegram import Update
 
 from fixtures.initial import CREATE_TABLES_SQL
@@ -73,20 +75,38 @@ async def set_user_role(update: Update, username: str, role_name: str = "client"
 
 
 async def get_list_users(db: Connection | None = None) -> list[User] | None:
-    _sql = "SELECT * FROM user ORDER BY id DESC LIMIT 2000;"
+    _sql = "SELECT * FROM user ORDER BY id DESC LIMIT 1000;"
     async with (db or get_db()) as conn:
         async with conn.execute(_sql) as cursor:
             rows = await cursor.fetchall()
     return [User(*user) for user in rows]
 
 
-async def save_message(user_id: int, text: str, message_id: int | None = None, message_type_id: int = 1):
+# async def save_message(user_id: int, text: str, data, message_id: int | None = None, message_type_id: int = 1):
+async def save_message(user_id: int, data: Update | OpenAIObject):
     """Here we save all the messages: questions and answers. message_type_id: 1 - question, 2 - answer."""
     time_added = datetime.now(timezone.utc).isoformat()
     async with get_db() as conn:
+        if type(data) is Update:
+            # question
+            text = data.message.text
+            message_id = data.message.message_id
+            message_type_id = 1
+            total_tokens = 0
+            data = data.to_json()
+        elif type(data) is OpenAIObject:
+            # answer
+            text = data.choices[0].message.content
+            message_id = None
+            message_type_id = 2
+            total_tokens = data.usage.total_tokens
+            data = json.dumps(data.to_dict())
+        else:
+            logger.info(f"Wrong data in save_message({user_id}, {data}).")
+            return
         sql = """
-            INSERT INTO user_message (user_id, text, message_id, message_type_id, time_added)
-            VALUES (?, ?, ?, ?, ?);"""
-        args = (user_id, text.strip(), message_id, message_type_id, time_added)
+            INSERT INTO user_message (user_id, text, message_id, message_type_id, time_added, total_tokens, data)
+            VALUES (?, ?, ?, ?, ?, ?, ?);"""
+        args = (user_id, text.strip(), message_id, message_type_id, time_added, total_tokens, data)
         await conn.execute(sql, args)
         await conn.commit()
