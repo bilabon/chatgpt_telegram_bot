@@ -10,6 +10,7 @@ from tools.ai import (
     ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
     enable_context_for_user, )
 from tools.decorator import check_user_role
+from tools.help import HELP_MESSAGE
 from tools.sql import (
     get_list_users, get_or_create_user,
     get_user_by_username, set_user_role, save_message)
@@ -62,9 +63,13 @@ async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE,
         await update.message.reply_text(f"I can say it only to admin.")
 
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+@check_user_role
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -> None:
     """Send a message when the command /help is issued."""
-    await update.message.reply_text("Check out https://github.com/bilabon/chatgpt_telegram_bot#info ")
+    reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-3.5 OpenAI API 🤖\n\n"
+    reply_text += HELP_MESSAGE
+    reply_text += "\nAnd now... ask me anything!"
+    await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
 
 
 @check_user_role
@@ -95,6 +100,8 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -
     logger.info(f'echo() GPT_CONTEXT: {GPT_CONTEXT}')
     text_question = update.message.text
 
+    await update.message.chat.send_action(action="typing")
+
     # save question
     await save_message(user_id=user.id, data=update)
 
@@ -104,15 +111,15 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -
         return
 
     # asking chatgpt
-    text, response = await ask_chatgpt(update, user=user, message=text_question)
     # TODO: remove, need only for debug
-    # try:
-    #     text, response = await ask_chatgpt(update, user=user, message=text_question)
-    # except Exception as err:
-    #     msg = f'500 error: {err}'
-    #     await update.message.reply_text(msg)
-    #     await disable_context_for_user(update, user.id)
-    #     return
+    # text, response = await ask_chatgpt(update, user=user, message=text_question)
+    try:
+        text, response = await ask_chatgpt(update, user=user, message=text_question)
+    except Exception as err:
+        msg = f'500 error: {err}'
+        await update.message.reply_text(msg)
+        await disable_context_for_user(update, user.id)
+        return
 
     if text:
         await save_message(user_id=user.id, data=response)
