@@ -7,6 +7,9 @@ from models import User
 from settings.config import AI_TOKEN, GPT_MODEL
 
 logger = logging.getLogger(__name__)
+
+openai.api_key = AI_TOKEN
+
 GPT_CONTEXT = {}
 GPT_CONTEXT_MAXLEN = 20
 
@@ -83,7 +86,6 @@ async def get_or_update_context(update: Update, message: str, user: User,
 
 
 async def _ask_chatgpt_text_davinci_003(message: str) -> tuple[str | None, OpenAIObject | None]:
-    openai.api_key = AI_TOKEN
     response, text, = None, None
     if GPT_MODEL == "text-davinci-003":
         response = openai.Completion.create(
@@ -100,7 +102,6 @@ async def _ask_chatgpt_text_davinci_003(message: str) -> tuple[str | None, OpenA
 
 
 async def _ask_chatgpt_gpt_35_turbo(update: Update, user: User, message: str) -> tuple[str | None, OpenAIObject | None]:
-    openai.api_key = AI_TOKEN
     response, text = None, None
     messages = await get_or_update_context(update, message=message, user=user, role_id=GPT_CONTEXT_ROLE_USER)
     mode_config = user.get_mode_config()
@@ -130,3 +131,8 @@ async def ask_chatgpt(update: Update, user: User, message: str) -> tuple[str | N
     elif GPT_MODEL == "gpt-3.5-turbo":
         text, response = await _ask_chatgpt_gpt_35_turbo(update, user, message)
     return text, response
+
+
+async def transcribe_audio(audio_file):
+    r = await openai.Audio.atranscribe("whisper-1", audio_file)
+    return r["text"]

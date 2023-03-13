@@ -9,11 +9,13 @@ from tools.help import HELP_MESSAGE
 
 
 def check_user_role(func):
-    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def wrapper(*args, **kwargs):
+        update = args[0]
         await check_or_create_db()
         user = await get_or_create_user(update)
         if user and (user.is_admin or user.is_client or user.username == ADMIN_USERNAME):
-            result = await func(update, context, user)
+            kwargs['user'] = user
+            result = await func(*args, **kwargs)
             return result
         elif user and user.is_alien:
             reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-3.5 OpenAI API 🤖\n\n"
