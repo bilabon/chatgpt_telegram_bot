@@ -1,5 +1,6 @@
 import logging
 import openai
+import json
 from settings.config import AI_TOKEN, GPT_MODEL
 
 logger = logging.getLogger(__name__)
@@ -78,5 +79,5 @@ async def ask_chatgpt(user_id: int, message: str) -> str | None:
         ]):
             text = response.choices[0].message.content
             await get_or_update_chatgpt_context(message=text, user_id=user_id, role_id=2)
-    logger.info(f'ask_chat_gpt() {GPT_MODEL} response: {response}')
+    logger.info(f'ask_chat_gpt() {GPT_MODEL} response: {json.dumps(response.to_dict())}')
     return text
