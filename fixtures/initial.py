@@ -22,4 +22,9 @@ INSERT INTO `user_role` (`id`, `name`) VALUES
     (1, 'admin'),
     (2, 'client'),
     (3, 'alien'),
-    (4, 'blocked');"""
+    (4, 'blocked');
+ALTER TABLE user ADD COLUMN total_tokens INTEGER DEFAULT 10000;
+ALTER TABLE user_message ADD COLUMN data TEXT DEFAULT NULL;
+ALTER TABLE user_message ADD COLUMN total_tokens INTEGER DEFAULT 0;
+ALTER TABLE user ADD COLUMN mode_id INTEGER DEFAULT 1;
+"""
