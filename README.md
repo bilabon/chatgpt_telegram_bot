@@ -1,7 +1,8 @@
 # chatgpt_telegram_bot
 
 #### News
-- _v1.01 14 Mar 2023_ - Support voice messages. (To work, you need to install this package: `sudo apt-get install -y ffmpeg`).
+- _v1.11 14 Mar 2023_ - Use ParseMode.MARKDOWN for code_assistant, minor fixes and improvements.
+- _v1.10 14 Mar 2023_ - Support voice messages. (To work, you need to install this package: `sudo apt-get install -y ffmpeg`).
 - _v1.00 14 Mar 2023_ - Support `/mode` command. You can select from 3 special chat modes: General Assistant, Code Assistant, Translation Assistant. The modes work with/without context. To enable context just use `/contexton` command. By default the context is disabled.
 - _v0.19 14 Mar 2023_ - Stylized bot answers with emoji. Add tables user.total_tokens and user_message.total_tokens and save total_tokens in user_message.total_tokens.
 - _v0.18 12 Mar 2023_ - Refactoring & bugfixes.
