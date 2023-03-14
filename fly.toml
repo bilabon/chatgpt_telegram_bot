@@ -1,6 +1,6 @@
 # fly.toml file generated for tbot on 2023-03-14T01:15:01+02:00
 
-app = "tbot01"
+app = "tbot"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
