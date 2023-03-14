@@ -2,7 +2,7 @@
 
 #### News
 - _v0.0021 14 Mar 2023_ - Support voice messages. (To work, you need to install this package: `sudo apt-get install -y ffmpeg`).
-- _v0.0020 14 Mar 2023_ - Support `/mode` command. You can select from 3 chat modes: General Assistant, Code Assistant, Translation Assistant.
+- _v0.0020 14 Mar 2023_ - Support `/mode` command. You can select from 3 special chat modes: General Assistant, Code Assistant, Translation Assistant.
 - _v0.0019 14 Mar 2023_ - Stylized bot answers with emoji. Add tables user.total_tokens and user_message.total_tokens and save total_tokens in user_message.total_tokens.
 - _v0.0018 12 Mar 2023_ - Refactoring & bugfixes.
 - _v0.0017 11 Mar 2023_ - Handle Edit events at telegramm.
