@@ -1,4 +1,7 @@
 import logging
+import tempfile
+import pydub
+from pathlib import Path
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
@@ -8,8 +11,8 @@ from telegram.ext import (Application, CommandHandler, ContextTypes,
 from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from tools.ai import (
     ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
-    enable_context_for_user, )
-from tools.decorator import check_user_role
+    enable_context_for_user, transcribe_audio, )
+from tools.decorators import check_user_role
 from tools.help import HELP_MESSAGE
 from tools.sql import (
     get_list_users, get_or_create_user,
@@ -94,16 +97,16 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
 
 
 @check_user_role
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -> None:
+async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User, message: str = '') -> None:
     """Echo the user message."""
     logger.info(f'echo() update: {update.to_json()}')
     logger.info(f'echo() GPT_CONTEXT: {GPT_CONTEXT}')
-    text_question = update.message.text
+    text_question = message or update.message.text
 
     await update.message.chat.send_action(action="typing")
 
     # save question
-    await save_message(user_id=user.id, data=update)
+    await save_message(user_id=user.id, data=update, text=text_question)
 
     # for pinging we do not call the chat API, just emulate the pong response.
     if text_question.lower() == 'ping':
@@ -122,11 +125,36 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -
         return
 
     if text:
-        await save_message(user_id=user.id, data=response)
+        await save_message(user_id=user.id, data=response, text=text)
         await update.message.reply_text(text)
     else:
         await update.message.reply_text('500 error')
         await disable_context_for_user(update, user.id)
+
+
+@check_user_role
+async def voice_message_handle(update: Update, context: CallbackContext, user: User):
+    await update.message.chat.send_action(action="typing")
+    voice = update.message.voice
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
+        voice_ogg_path = tmp_dir / "voice.ogg"
+
+        # download
+        voice_file = await context.bot.get_file(voice.file_id)
+        await voice_file.download_to_drive(voice_ogg_path)
+
+        # convert to mp3
+        voice_mp3_path = tmp_dir / "voice.mp3"
+        pydub.AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
+
+        # transcribe
+        with open(voice_mp3_path, "rb") as f:
+            transcribed_text = await transcribe_audio(f)
+
+    text = f"🎤: <i>{transcribed_text}</i>"
+    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+    await message_handle(update, context, user=user, message=text)
 
 
 @check_user_role
@@ -170,7 +198,8 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))
 
     # on non command i.e. message - echo the message on Telegram
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handle))
+    application.add_handler(MessageHandler(filters.VOICE, voice_message_handle))
 
     # Run the bot until the user presses Ctrl-C
     application.run_polling()

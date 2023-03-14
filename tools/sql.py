@@ -69,20 +69,18 @@ async def get_list_users(db: Connection | None = None) -> list[User] | None:
 
 
 # async def save_message(user_id: int, text: str, data, message_id: int | None = None, message_type_id: int = 1):
-async def save_message(user_id: int, data: Update | OpenAIObject):
+async def save_message(user_id: int, data: Update | OpenAIObject, text: str):
     """Here we save all the messages: questions and answers. message_type_id: 1 - question, 2 - answer."""
     time_added = datetime.now(timezone.utc).isoformat()
     async with get_db() as conn:
         if type(data) is Update:
             # question
-            text = data.message.text
             message_id = data.message.message_id
             message_type_id = 1
             total_tokens = 0
             data = data.to_json()
         elif type(data) is OpenAIObject:
             # answer
-            text = data.choices[0].message.content
             message_id = None
             message_type_id = 2
             total_tokens = data.usage.total_tokens
