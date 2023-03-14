@@ -73,7 +73,7 @@ async def get_or_update_context(update: Update, message: str, user: User,
     if not messages:
         # add system message to context
         messages = [{
-            'role': GPT_CONTEXT_ROLES[role_id],
+            'role': GPT_CONTEXT_ROLES[GPT_CONTEXT_ROLE_SYSTEM],
             'content': mode_config['system_message'],
         }]
     messages.append({
