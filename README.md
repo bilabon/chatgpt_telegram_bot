@@ -41,10 +41,10 @@ And now you neet to set BOT_TOKEN, AI_TOKEN, ADMIN_USERNAME in settings/config.p
 At @BotFather, use command /mybots -> select your bot -> Edit Bot -> Edit Commands. Then paste the following text to the BotFather:
 
 ```
-mode - Select chat mode
+/mode - Select chat mode
 /contexon - Turn on context
 /contexoff - Turn off context
-help - Show help
+/help - Show help
 ```
 After that, you will be able to utilize menu shortcuts or receive prompts while entering commands.
 
