@@ -96,11 +96,6 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
             await update.message.reply_text(f"{username_} is not found!")
 
 
-async def edited_message_handle(update: Update, context: CallbackContext):
-    text = "🥲 Unfortunately, message <b>editing</b> is not supported"
-    await update.edited_message.reply_text(text, parse_mode=ParseMode.HTML)
-
-
 @check_user_role
 async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User, message: str = '') -> None:
     """Echo the user message."""
