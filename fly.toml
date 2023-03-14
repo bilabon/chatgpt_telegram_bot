@@ -1,8 +1,9 @@
-# fly.toml file generated for tbot on 2023-03-14T01:15:01+02:00
+# fly.toml file generated for tbot on 2023-03-14T11:37:22+02:00
 
 app = "tbot"
 kill_signal = "SIGINT"
 kill_timeout = 5
+primary_region = "otp"
 processes = []
 
 [env]

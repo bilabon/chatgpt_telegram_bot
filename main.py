@@ -12,7 +12,7 @@ from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from tools.ai import (
     ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
     enable_context_for_user, transcribe_audio, )
-from tools.decorator import check_user_role
+from tools.decorators import check_user_role
 from tools.help import HELP_MESSAGE
 from tools.sql import (
     get_list_users, get_or_create_user,
