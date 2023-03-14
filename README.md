@@ -26,13 +26,12 @@ And now you neet to set BOT_TOKEN, AI_TOKEN, ADMIN_USERNAME in settings/config.p
 - GPT_MODEL - model `gpt-3.5-turbo` or `text-davinci-003` from here https://platform.openai.com/docs/models/overview 
 
 #### Info
-- The first thing an admin needs to do in a chat room is to execute the command `/start`. This command will create a database.
 - Each user who contacts the chat for the first time will be added to the database and assigned the role of `alien`. There are four roles in the bot: `admin`, `client`, `alien` and `blocked`. To communicate with ChatGPT, a user needs to have the role of `admin` or `client`.
 - A user with the role of `admin` can assign roles to other users, for example: `/setrole username client`.
 - The command `/list` will show all users (id and username). This command is only available for users with the role of `admin`.
 - The command `/context on` will turn on the context support. [Example](https://github.com/bilabon/chatgpt_telegram_bot#-1).
 - The command `/context off` will turn off the context support. 
-- The command `/mode` – will show chat modes.
+- The command `/mode` – will show chat modes. You can select from 3 special chat modes: General Assistant, Code Assistant, Translation Assistant.
 
 #### ![pic1](https://i.ibb.co/dJSLCQW/Screenshot-2023-02-25-at-23-37-31.png)
 
