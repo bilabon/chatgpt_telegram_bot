@@ -126,7 +126,8 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
 
     if text:
         await save_message(user_id=user.id, data=response, text=text)
-        await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        parse_mode = ParseMode.MARKDOWN if user.mode_id == user.get_mode_choices['code_assistant'] else ParseMode.HTML
+        await update.message.reply_text(text, parse_mode=parse_mode)
     else:
         await update.message.reply_text('500 error')
         await disable_context_for_user(update, user.id)

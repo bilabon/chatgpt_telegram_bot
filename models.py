@@ -82,3 +82,7 @@ class User:
 
     def get_mode_config(self):
         return USER_MODES_CONFIGS[self.get_mode_name()]
+
+    @property
+    def get_mode_choices(self):
+        return USER_MODE_CHOICES
