@@ -13,13 +13,14 @@ from tools.ai import (
     ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
     enable_context_for_user, transcribe_audio, )
 from tools.decorators import check_user_role
-from tools.help import HELP_MESSAGE
+from tools.help import HELP_MESSAGE, HELP_MESSAGE_ADMIN
 from tools.sql import (
     get_list_users, get_or_create_user,
-    get_user_by_username, set_user_role, save_message)
-from tools.parser import parse_setrole_message, parse_context_message
+    get_user_by_username, set_user_role, save_message, add_balance)
+from tools.parser import parse_setrole_command, parse_context_message, parse_addbalance_command
 from tools.user import render_list_users
 from models import USER_MODES_CONFIGS, User
+from tools.utils import inform_used_tokens_on_message, show_user_balance
 
 logger = logging.getLogger(__name__)
 
@@ -61,9 +62,30 @@ async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE,
     if user.is_admin:
         list_users = await get_list_users()
         response_text = await render_list_users(list_users)
-        await update.message.reply_text(response_text)
+        await update.message.reply_text(response_text, parse_mode=ParseMode.HTML)
     else:
-        await update.message.reply_text(f"I can say it only to admin.")
+        await update.message.reply_text("403 Forbidden.")
+
+
+async def addbalance_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Return list of all users (only for admin).
+    Example:
+        /list
+    """
+    user = await get_or_create_user(update)
+    if user.is_admin:
+        error, username_, tokens = await parse_addbalance_command(update.message.text)
+        if error:
+            await update.message.reply_text(error)
+            return
+        user_ = await get_user_by_username(username_)
+        if user_:
+            await add_balance(user.id, tokens)
+            user_ = await get_user_by_username(username_)
+            response_text = await render_list_users([user_])
+            await update.message.reply_text(response_text, parse_mode=ParseMode.HTML)
+    else:
+        await update.message.reply_text("403 Forbidden.")
 
 
 @check_user_role
@@ -71,8 +93,17 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user:
     """Send a message when the command /help is issued."""
     reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-3.5 OpenAI API 🤖\n\n"
     reply_text += HELP_MESSAGE
+    if user.is_admin:
+        reply_text += HELP_MESSAGE_ADMIN
     reply_text += "\nAnd now... ask me anything!"
     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
+
+
+async def balance_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a message when the command /balance is issued."""
+    user = await get_or_create_user(update)
+    text = await show_user_balance(update, user)
+    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 
 
 @check_user_role
@@ -82,7 +113,7 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
         /setrole username client
     """
     if user.is_admin or user.username == ADMIN_USERNAME:
-        error, username_, role_name_ = await parse_setrole_message(update.message.text)
+        error, username_, role_name_ = await parse_setrole_command(update.message.text)
         if error:
             await update.message.reply_text(error)
             return
@@ -94,6 +125,8 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
             await update.message.reply_text(f"Success! {username_} now with {updated_user_.get_role_name()} role.")
         else:
             await update.message.reply_text(f"{username_} is not found!")
+    else:
+        await update.message.reply_text("403 Forbidden.")
 
 
 @check_user_role
@@ -126,6 +159,7 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
 
     if text:
         await save_message(user_id=user.id, data=response, text=text)
+        # await inform_used_tokens_on_message(update, response)
         parse_mode = ParseMode.MARKDOWN if user.mode_id == user.get_mode_choices['code_assistant'] else ParseMode.HTML
         await update.message.reply_text(text, parse_mode=parse_mode)
     else:
@@ -194,6 +228,9 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
+
+    application.add_handler(CommandHandler("balance", balance_command))
+    application.add_handler(CommandHandler("addbalance", addbalance_command))
 
     application.add_handler(CommandHandler("mode", show_chat_modes_handle))
     application.add_handler(CallbackQueryHandler(set_chat_mode_handle, pattern="^set_chat_mode"))

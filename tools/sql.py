@@ -7,25 +7,25 @@ from openai.openai_object import OpenAIObject
 from telegram import Update
 
 from models import USER_ROLE_CHOICES, User
-from settings.config import ADMIN_USERNAME
+from settings.config import ADMIN_USERNAME, FREE_TOKENS
 from tools.db import get_db
 
 logger = logging.getLogger(__name__)
 
 
-async def get_user_by_username(username: str, db: Connection | None = None) -> User | None:
+async def get_user_by_username(username: str) -> User | None:
     _sql = "SELECT * FROM user WHERE username=?;"
     args = (username,)
-    async with (db or get_db()) as conn:
+    async with get_db() as conn:
         async with conn.execute(_sql, args) as cursor:
             user = await cursor.fetchone()
     return User(*user) if user else None
 
 
-async def get_user_by_tid(tid: int, db: Connection | None = None) -> User | None:
+async def get_user_by_tid(tid: int) -> User | None:
     _sql = "SELECT * FROM user WHERE telegram_id=?;"
     args = (tid,)
-    async with (db or get_db()) as conn:
+    async with get_db() as conn:
         async with conn.execute(_sql, args) as cursor:
             user = await cursor.fetchone()
     return User(*user) if user else None
@@ -46,6 +46,7 @@ async def get_or_create_user(update: Update) -> User:
             await conn.execute(sql, args)
             await conn.commit()
         user = await get_user_by_tid(tuser.id)
+        await add_balance(user_id=user.id, tokens=FREE_TOKENS)
     return user
 
 
@@ -60,12 +61,23 @@ async def set_user_role(update: Update, username: str, role_name: str = "client"
             await conn.commit()
 
 
-async def get_list_users(db: Connection | None = None) -> list[User] | None:
+async def get_list_users() -> list[User] | None:
     _sql = "SELECT * FROM user ORDER BY id DESC LIMIT 1000;"
-    async with (db or get_db()) as conn:
+    async with get_db() as conn:
         async with conn.execute(_sql) as cursor:
             rows = await cursor.fetchall()
     return [User(*user) for user in rows]
+
+
+async def add_balance(user_id, tokens) -> list[User] | None:
+    time_added = datetime.now(timezone.utc).isoformat()
+    async with get_db() as conn:
+        sql = """
+            INSERT INTO user_balance (user_id, tokens, time_added)
+            VALUES (?, ?, ?);"""
+        args = (user_id, tokens, time_added)
+        await conn.execute(sql, args)
+        await conn.commit()
 
 
 # async def save_message(user_id: int, text: str, data, message_id: int | None = None, message_type_id: int = 1):

@@ -23,8 +23,13 @@ INSERT INTO `user_role` (`id`, `name`) VALUES
     (2, 'client'),
     (3, 'alien'),
     (4, 'blocked');
+
 ALTER TABLE user ADD COLUMN total_tokens INTEGER DEFAULT 10000;
 ALTER TABLE user_message ADD COLUMN data TEXT DEFAULT NULL;
 ALTER TABLE user_message ADD COLUMN total_tokens INTEGER DEFAULT 0;
 ALTER TABLE user ADD COLUMN mode_id INTEGER DEFAULT 1;
+
+ALTER TABLE user DROP COLUMN total_tokens;
+CREATE TABLE "user_balance" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "tokens" integer NOT NULL, "time_added" datetime NOT NULL, "user_id" bigint NOT NULL REFERENCES "user" ("id") DEFERRABLE INITIALLY DEFERRED);
+CREATE INDEX "user_balance_user_id_ae5e142c" ON "user_balance" ("user_id");
 """

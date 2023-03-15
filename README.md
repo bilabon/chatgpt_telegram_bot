@@ -1,6 +1,7 @@
 # chatgpt_telegram_bot
 
 #### News
+- _v1.20 15 Mar 2023_ - Add balances logic. Add checking negative token balance. Add FREE_TOKENS after registration. Use async openai API requests. DB migration. Improvement. Add commands: `/balance`, `/addbalance`. Update commands: `/help`, `/setrole`.
 - _v1.11 14 Mar 2023_ - Use ParseMode.MARKDOWN for Code Assistant mode, minor fixes and improvements.
 - _v1.10 14 Mar 2023_ - Support voice messages. (To work, you need to install this package: `sudo apt-get install -y ffmpeg`).
 - _v1.00 14 Mar 2023_ - Support `/mode` command. You can select from 3 special chat modes: General Assistant, Code Assistant, Translation Assistant. The modes work with/without context. To enable context just use `/contexton` command. By default the context is disabled.

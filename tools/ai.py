@@ -105,7 +105,7 @@ async def _ask_chatgpt_gpt_35_turbo(update: Update, user: User, message: str) ->
     response, text = None, None
     messages = await get_or_update_context(update, message=message, user=user, role_id=GPT_CONTEXT_ROLE_USER)
     mode_config = user.get_mode_config()
-    response = openai.ChatCompletion.create(
+    response = await openai.ChatCompletion.acreate(
         model=GPT_MODEL,
         messages=messages,
         temperature=mode_config['temperature'],

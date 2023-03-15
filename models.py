@@ -36,7 +36,7 @@ USER_MODES_CONFIGS = {
 
 
 class User:
-    def __init__(self, _id, username, first_name, telegram_id, language_code, time_added, role_id, total_tokens,
+    def __init__(self, _id, username, first_name, telegram_id, language_code, time_added, role_id,
                  mode_id):
         self.id = _id
         self.username = username
@@ -45,7 +45,6 @@ class User:
         self.language_code = language_code
         self.time_added = time_added
         self.role_id = role_id
-        self.total_tokens = total_tokens
         self.mode_id = mode_id
 
     @property
@@ -86,3 +85,19 @@ class User:
     @property
     def get_mode_choices(self):
         return USER_MODE_CHOICES
+
+    async def get_balance_spent(self) -> tuple:
+        _sql = "SELECT SUM(total_tokens) FROM user_message WHERE user_id=?;"
+        args = (self.id,)
+        async with get_db() as conn:
+            async with conn.execute(_sql, args) as cursor:
+                balance_spent = await cursor.fetchone()
+        return balance_spent[0] or 0
+
+    async def get_balance_credited(self) -> int:
+        _sql = "SELECT SUM(tokens) FROM user_balance WHERE user_id=?;"
+        args = (self.id,)
+        async with get_db() as conn:
+            async with conn.execute(_sql, args) as cursor:
+                balance_credited = await cursor.fetchone()
+        return balance_credited[0] or 0
