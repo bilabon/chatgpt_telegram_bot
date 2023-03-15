@@ -1,8 +1,9 @@
 HELP_MESSAGE = """Commands:
+⚪ /retry - Regenerate last bot answer
 ⚪ /mode – Select chat mode
-⚪ /contexton - Remember messages enable
-⚪ /contextoff - Remember messages disable
-⚪ /balance - See you balance
+⚪ /contexton - Remember messages ON
+⚪ /contextoff - Remember messages OFF
+⚪ /balance - Show balance
 ⚪ /help – Show help
 
 Keep in mind that the command /contexton will increase the cost of the question.
