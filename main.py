@@ -172,6 +172,9 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
 @check_user_role
 async def retry_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -> None:
     """Regenerate last bot answer."""
+    if not GPT_LAST_MESSAGE.get(user.id, None):
+        await update.message.reply_text('🕵️ Nothing to retry. Please write a new message.')
+        return
     await update.message.chat.send_action(action="typing")
     await message_handle(update, context, user=user, retry=True)
 
