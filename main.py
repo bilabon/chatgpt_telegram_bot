@@ -10,7 +10,7 @@ from telegram.ext import (Application, CommandHandler, ContextTypes,
 
 from settings.config import ADMIN_USERNAME, BOT_TOKEN
 from tools.ai import (
-    ask_chatgpt, is_context_enabled, GPT_CONTEXT, disable_context_for_user, clear_context_for_user,
+    ask_chatgpt, is_context_enabled, GPT_CONTEXT, GPT_LAST_MESSAGE, disable_context_for_user, clear_context_for_user,
     enable_context_for_user, transcribe_audio, )
 from tools.decorators import check_user_role
 from tools.help import HELP_MESSAGE, HELP_MESSAGE_ADMIN
@@ -130,10 +130,12 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
 
 
 @check_user_role
-async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User, message: str = '') -> None:
+async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User, message: str = '',
+                         retry: bool = False) -> None:
     """Echo the user message."""
     logger.info(f'echo() update: {update.to_json()}')
     logger.info(f'echo() GPT_CONTEXT: {GPT_CONTEXT}')
+    logger.info(f'echo() GPT_LAST_MESSAGE: {GPT_LAST_MESSAGE}')
     text_question = message or update.message.text
 
     await update.message.chat.send_action(action="typing")
@@ -150,7 +152,7 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
     # TODO: remove, need only for debug
     # text, response = await ask_chatgpt(update, user=user, message=text_question)
     try:
-        text, response = await ask_chatgpt(update, user=user, message=text_question)
+        text, response = await ask_chatgpt(update, user=user, message=text_question, retry=retry)
     except Exception as err:
         msg = f'500 error: {err}'
         await update.message.reply_text(msg)
@@ -165,6 +167,16 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
     else:
         await update.message.reply_text('500 error')
         await disable_context_for_user(update, user.id)
+
+
+@check_user_role
+async def retry_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -> None:
+    """Regenerate last bot answer."""
+    if not GPT_LAST_MESSAGE.get(user.id, None):
+        await update.message.reply_text('🕵️ Nothing to retry. Please write a new message.')
+        return
+    await update.message.chat.send_action(action="typing")
+    await message_handle(update, context, user=user, retry=True)
 
 
 @check_user_role
@@ -228,6 +240,8 @@ def main() -> None:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("list", list_users_command))
     application.add_handler(CommandHandler("setrole", setrole_command))
+
+    application.add_handler(CommandHandler("retry", retry_command))
 
     application.add_handler(CommandHandler("balance", balance_command))
     application.add_handler(CommandHandler("addbalance", addbalance_command))
