@@ -31,7 +31,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user
     Example:
         /start
     """
-    await update.message.reply_html(user.get_mode_config()['welcome_message'])
+    await help_command(update, context)
 
 
 @check_user_role
