@@ -125,6 +125,8 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
             await update.message.reply_text(f"Success! {username_} now with {updated_user_.get_role_name()} role.")
         else:
             await update.message.reply_text(f"{username_} is not found!")
+    else:
+        await update.message.reply_text("403 Forbidden.")
 
 
 @check_user_role
