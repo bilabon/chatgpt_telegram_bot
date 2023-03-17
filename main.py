@@ -70,7 +70,7 @@ async def list_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE,
 async def addbalance_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Return list of all users (only for admin).
     Example:
-        /list
+        /addbalance username 1000
     """
     user = await get_or_create_user(update)
     if user.is_admin:

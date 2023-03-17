@@ -10,7 +10,7 @@ Messaging with context means that the bot will remember up to 10 messages after 
 """
 
 HELP_MESSAGE_ADMIN = """
-⚪ /addbalance username 123 – Top up balance
+⚪ /addbalance username 1000 – Top up balance
 ⚪ /list – Show list all users
 ⚪ /setrole username client – Set role [admin, client, alien, blocked] for user
 """
