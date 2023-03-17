@@ -15,7 +15,7 @@ async def show_user_balance(update: Update, user: User, only_reply_if_negative_b
     balance_spent = await user.get_balance_spent()
     balance_credited = await user.get_balance_credited()
     balance_left = balance_credited - balance_spent
-    text = "🟢 " if balance_left > 0 else "🔴 "
+    text = "🟢 " if balance_left > 2500 else "🟡 " if balance_left > 0 else "🔴 "
     text += f"You have <b>{balance_left}</b> tokens left. You totally spent <b>{balance_spent}</b> tokens." \
             f"\n\nWrite to admin @{ADMIN_USERNAME} to top up your balance."
     if only_reply_if_negative_balance and balance_left > 0:

@@ -1,5 +1,4 @@
 from telegram.constants import ParseMode
-from settings.config import ADMIN_USERNAME
 from tools.db import check_or_create_db
 from tools.sql import get_or_create_user
 from tools.utils import show_user_balance

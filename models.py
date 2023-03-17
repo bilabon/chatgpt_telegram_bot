@@ -86,7 +86,7 @@ class User:
     def get_mode_choices(self):
         return USER_MODE_CHOICES
 
-    async def get_balance_spent(self) -> tuple:
+    async def get_balance_spent(self) -> int:
         _sql = "SELECT SUM(total_tokens) FROM user_message WHERE user_id=?;"
         args = (self.id,)
         async with get_db() as conn:

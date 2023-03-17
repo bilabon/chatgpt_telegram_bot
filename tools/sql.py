@@ -2,7 +2,6 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from aiosqlite.core import Connection
 from openai.openai_object import OpenAIObject
 from telegram import Update
 
@@ -69,7 +68,7 @@ async def get_list_users() -> list[User] | None:
     return [User(*user) for user in rows]
 
 
-async def add_balance(user_id, tokens) -> list[User] | None:
+async def add_balance(user_id, tokens) -> None:
     time_added = datetime.now(timezone.utc).isoformat()
     async with get_db() as conn:
         sql = """
