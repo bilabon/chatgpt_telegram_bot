@@ -1,7 +1,10 @@
+import os
 import logging
 
 
 def setup_logger(logger_name, log_file, level=logging.DEBUG):
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
     _logger = logging.getLogger(logger_name)
     formatter = logging.Formatter('%(message)s')
     fileHandler = logging.FileHandler(log_file, mode='w')

@@ -34,20 +34,17 @@ def check_user_role(func):
                 kwargs['user'] = user
 
                 # timeit
+                timeit_msg = 'timeit func: %r args:[%r, %r]' % (func.__name__, args, kwargs)
                 start_time = time.monotonic()
+                logger_timeit.debug(f'>>>Start {start_time} {timeit_msg}')
                 result = await func(*args, **kwargs)
                 diff = time.monotonic() - start_time
-                timeit_msg = 'timeit func: %r args:[%r, %r] took: %2.4f sec' % (func.__name__, args, kwargs, diff)
-                logger.debug(timeit_msg)
-                logger_timeit.debug(timeit_msg)
-                if diff > 5:
-                    logger_timeit_slow.error(timeit_msg)
-                return result
+                print('diff', diff)
+                logger_timeit.debug(f'>>>End {start_time} {timeit_msg} took: {diff:.4f} sec')
 
-        # elif user and user.is_alien:
-        #     reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-3.5 OpenAI API 🤖\n\n"
-        #     reply_text += HELP_MESSAGE
-        #     reply_text += f"\nAsk admin https://t.me/{ADMIN_USERNAME} to allow you to talk to me!"
-        #     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
+                logger.debug(f'>>>End {start_time} {timeit_msg} took: {diff:.4f} sec')
+                if diff > 2:
+                    logger_timeit_slow.debug(f'>>>End {start_time} {timeit_msg} took: {diff:.4f} sec')
+                return result
 
     return wrapper

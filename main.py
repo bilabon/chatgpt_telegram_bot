@@ -8,7 +8,7 @@ from telegram.constants import ParseMode
 from telegram.ext import (Application, CommandHandler, ContextTypes,
                           MessageHandler, filters, CallbackQueryHandler, CallbackContext)
 
-from settings.config import ADMIN_USERNAME, BOT_TOKEN
+from settings.config import ADMIN_USERNAME, BOT_TOKEN, VOICE_LIMIT_DURATION_SEC
 from tools.ai import (
     ask_chatgpt, is_context_enabled, GPT_CONTEXT, GPT_LAST_MESSAGE, disable_context_for_user, clear_context_for_user,
     enable_context_for_user, transcribe_audio, )
@@ -188,6 +188,9 @@ async def retry_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user
 async def voice_message_handle(update: Update, context: CallbackContext, user: User):
     await update.message.chat.send_action(action="typing")
     voice = update.message.voice
+    if voice.duration > VOICE_LIMIT_DURATION_SEC:
+        await update.message.reply_text('👮 The message is too long, try to shorten it. Limit is 30 sec.')
+        return
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
         voice_ogg_path = tmp_dir / "voice.ogg"
