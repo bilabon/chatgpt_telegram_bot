@@ -63,10 +63,12 @@ At [@BotFather](https://telegram.me/BotFather), use command /mybots -> select yo
 Then paste the following text to the BotFather:
 
 ```
-/mode - Select chat mode
-/contexon - Turn on context
-/contexoff - Turn off context
-/help - Show help
+retry - Regenerate last bot answer
+mode - Select chat mode
+contexton - Messaging with context
+contextoff - Messaging without context
+balance - Show balance
+help - Show help
 ```
 
 After that, you will be able to utilize menu shortcuts or receive prompts while entering commands.
