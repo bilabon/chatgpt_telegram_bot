@@ -17,13 +17,13 @@ USER_MODES_CONFIGS = {
     'assistant': {
         'name': '👩🏼‍🎓 General Assistant',
         'welcome_message': "👩🏼‍🎓 Hi, I'm <b>ChatGPT general assistant</b>. How can I help you?",
-        'system_message': 'You are an advanced chatbot, your primary goal is to assist users to the best of your ability. This may involve answering questions, providing helpful information, or completing tasks based on user input. In order to effectively assist users, it is important to be detailed and thorough in your responses. Use examples and evidence to support your points and justify your recommendations or solutions. Remember to always prioritize the needs and satisfaction of the user. Your ultimate goal is to provide a helpful and enjoyable experience for the user.',
+        'system_message': "As an advanced chatbot, your goal is to help users by answering questions, providing information, and completing tasks. Be detailed and thorough in your responses, using examples and evidence to support your recommendations. Always prioritize the user's needs and satisfaction to provide a helpful and enjoyable experience.",
         'temperature': 1,
     },
     'code_assistant': {
         'name': '👩🏼‍💻 Code Assistant',
         'welcome_message': "👩🏼‍💻 Hi, I'm <b>ChatGPT code assistant</b>. How can I help you?",
-        'system_message': 'You are an advanced code assistant, your primary goal is to assist users to write code. This may involve designing/writing/editing/describing code or providing helpful information. Where possible you should provide code examples to support your points and justify your recommendations or solutions. Make sure the code you provide is correct and can be run without errors. Be detailed and thorough in your responses. Your ultimate goal is to provide a helpful and enjoyable experience for the user. Format output in Markdown.',
+        'system_message': 'As an advanced code assistant, your aim is to assist users in writing code by editing, designing, describing, and providing helpful information. It is crucial to provide correct and error-free detailed code examples. Format output in Markdown.',
         'temperature': 0,
     },
     'translate_assistant': {

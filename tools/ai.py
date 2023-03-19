@@ -6,7 +6,7 @@ from openai.openai_object import OpenAIObject
 from models import User
 from settings.config import AI_TOKEN, GPT_MODEL
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("debug")
 
 openai.api_key = AI_TOKEN
 

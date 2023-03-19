@@ -1,7 +1,14 @@
+import logging
+import time
+
 from telegram.constants import ParseMode
 from tools.db import check_or_create_db
 from tools.sql import get_or_create_user
 from tools.utils import show_user_balance
+
+logger = logging.getLogger("debug")
+logger_timeit = logging.getLogger("timeit")
+logger_timeit_slow = logging.getLogger("timeit_slow")
 
 
 def check_user_role(func):
@@ -25,7 +32,16 @@ def check_user_role(func):
                     await update.edited_message.reply_text(text, parse_mode=ParseMode.HTML)
                     return
                 kwargs['user'] = user
+
+                # timeit
+                start_time = time.monotonic()
                 result = await func(*args, **kwargs)
+                diff = time.monotonic() - start_time
+                timeit_msg = 'timeit func: %r args:[%r, %r] took: %2.4f sec' % (func.__name__, args, kwargs, diff)
+                logger.debug(timeit_msg)
+                logger_timeit.debug(timeit_msg)
+                if diff > 5:
+                    logger_timeit_slow.error(timeit_msg)
                 return result
 
         # elif user and user.is_alien:

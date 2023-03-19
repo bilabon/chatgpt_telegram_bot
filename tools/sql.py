@@ -9,7 +9,7 @@ from models import USER_ROLE_CHOICES, User
 from settings.config import ADMIN_USERNAME, FREE_TOKENS
 from tools.db import get_db
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("debug")
 
 
 async def get_user_by_username(username: str) -> User | None:

@@ -14,6 +14,7 @@ from tools.ai import (
     enable_context_for_user, transcribe_audio, )
 from tools.decorators import check_user_role
 from tools.help import HELP_MESSAGE, HELP_MESSAGE_ADMIN
+from tools.log import setup_logger
 from tools.sql import (
     get_list_users, get_or_create_user,
     get_user_by_username, set_user_role, save_message, add_balance)
@@ -22,7 +23,7 @@ from tools.user import render_list_users
 from models import USER_MODES_CONFIGS, User
 from tools.utils import inform_used_tokens_on_message, show_user_balance
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("debug")
 
 
 @check_user_role
@@ -80,7 +81,7 @@ async def addbalance_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
             return
         user_ = await get_user_by_username(username_)
         if user_:
-            await add_balance(user.id, tokens)
+            await add_balance(user_.id, tokens)
             user_ = await get_user_by_username(username_)
             response_text = await render_list_users([user_])
             await update.message.reply_text(response_text, parse_mode=ParseMode.HTML)
@@ -262,7 +263,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-    )
+    setup_logger("debug", "logs/debug.log")
+    setup_logger("timeit", "logs/timeit.log")
+    setup_logger("timeit_slow", "logs/timeit_slow.log")
     main()
