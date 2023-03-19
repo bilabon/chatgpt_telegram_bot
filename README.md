@@ -2,7 +2,7 @@
 
 #### News
 - _v1.31 19 Mar 2023_ - Add VOICE_LIMIT_DURATION_SEC to configs for limitation duration of voice messages, please check config_template.py and update config.py
-- _v1.30 19 Mar 2023_ - Add telegram commands to post_init(). Run the bot in async mode. Bugfixes, improvements. Please reinstall requirements.txt
+- _v1.30 19 Mar 2023_ - Add telegram commands to post_init(). Run the bot in async mode. Bugfixes, improvements. Please reinstall requirements.txt. Add logging to files.
 - _v1.21 15 Mar 2023_ - Add `/retry` command to regenerate last bot answer.
 - _v1.20 15 Mar 2023_ - Add balances logic. Add checking negative token balance. Add FREE_TOKENS after registration. Use
   async openai API requests. DB migration. Improvement. Add commands: `/balance`, `/addbalance`. Update
