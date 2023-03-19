@@ -1,12 +1,15 @@
 import logging
 import tempfile
+import time
+
 import pydub
 from pathlib import Path
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
 from telegram.constants import ParseMode
 from telegram.ext import (Application, CommandHandler, ContextTypes,
-                          MessageHandler, filters, CallbackQueryHandler, CallbackContext)
+                          MessageHandler, filters, CallbackQueryHandler, CallbackContext, ApplicationBuilder,
+                          AIORateLimiter)
 
 from settings.config import ADMIN_USERNAME, BOT_TOKEN, VOICE_LIMIT_DURATION_SEC
 from tools.ai import (
@@ -133,16 +136,21 @@ async def setrole_command(update: Update, context: ContextTypes.DEFAULT_TYPE, us
 @check_user_role
 async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User, message: str = '',
                          retry: bool = False) -> None:
+    start_time = time.monotonic()
     """Echo the user message."""
     logger.info(f'echo() update: {update.to_json()}')
     logger.info(f'echo() GPT_CONTEXT: {GPT_CONTEXT}')
     logger.info(f'echo() GPT_LAST_MESSAGE: {GPT_LAST_MESSAGE}')
+
+    logger.debug(f'+++1 message_handle {time.monotonic() - start_time}')
     text_question = message or update.message.text
 
     await update.message.chat.send_action(action="typing")
+    logger.debug(f'+++2 message_handle {time.monotonic() - start_time}')
 
     # save question
     await save_message(user_id=user.id, data=update, text=text_question)
+    logger.debug(f'+++3 message_handle {time.monotonic() - start_time}')
 
     # for pinging we do not call the chat API, just emulate the pong response.
     if text_question.lower() == 'ping':
@@ -152,6 +160,7 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
     # asking chatgpt
     # TODO: remove, need only for debug
     # text, response = await ask_chatgpt(update, user=user, message=text_question)
+    logger.debug(f'+++4 message_handle {time.monotonic() - start_time}')
     try:
         text, response = await ask_chatgpt(update, user=user, message=text_question, retry=retry)
     except Exception as err:
@@ -159,9 +168,11 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
         await update.message.reply_text(msg)
         await disable_context_for_user(update, user.id)
         return
+    logger.debug(f'+++5 message_handle {time.monotonic() - start_time}')
 
     if text:
         await save_message(user_id=user.id, data=response, text=text)
+        logger.debug(f'+++6 message_handle {time.monotonic() - start_time}')
         # await inform_used_tokens_on_message(update, response)
         if user.mode_id == user.get_mode_choices['code_assistant']:
             await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
@@ -169,9 +180,11 @@ async def message_handle(update: Update, context: ContextTypes.DEFAULT_TYPE, use
             await update.message.reply_text(text, parse_mode=ParseMode.HTML)
         else:
             await update.message.reply_text(text)
+        logger.debug(f'+++7 message_handle {time.monotonic() - start_time}')
     else:
         await update.message.reply_text('500 error')
         await disable_context_for_user(update, user.id)
+    logger.debug(f'+++8 message_handle {time.monotonic() - start_time}')
 
 
 @check_user_role
@@ -186,26 +199,33 @@ async def retry_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user
 
 @check_user_role
 async def voice_message_handle(update: Update, context: CallbackContext, user: User):
+    start_time = time.monotonic()
     await update.message.chat.send_action(action="typing")
     voice = update.message.voice
+    logger.debug(f'+++1 voice_message_handle {time.monotonic() - start_time}')
     if voice.duration > VOICE_LIMIT_DURATION_SEC:
         await update.message.reply_text('👮 The message is too long, try to shorten it. Limit is 30 sec.')
         return
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
         voice_ogg_path = tmp_dir / "voice.ogg"
+        logger.debug(f'+++2 voice_message_handle {time.monotonic() - start_time}')
 
         # download
         voice_file = await context.bot.get_file(voice.file_id)
+        logger.debug(f'+++3 voice_message_handle {time.monotonic() - start_time}')
         await voice_file.download_to_drive(voice_ogg_path)
+        logger.debug('+++4 voice_message_handle {time.monotonic() - start_time}')
 
         # convert to mp3
         voice_mp3_path = tmp_dir / "voice.mp3"
         pydub.AudioSegment.from_file(voice_ogg_path).export(voice_mp3_path, format="mp3")
+        logger.debug(f'+++5 voice_message_handle {time.monotonic() - start_time}')
 
         # transcribe
         with open(voice_mp3_path, "rb") as f:
             transcribed_text = await transcribe_audio(f)
+        logger.debug(f'+++6 voice_message_handle {time.monotonic() - start_time}')
 
     text = f"🎤: <i>{transcribed_text}</i>"
     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
@@ -237,10 +257,30 @@ async def set_chat_mode_handle(update: Update, context: CallbackContext, user: U
     await query.edit_message_text(user.get_mode_config()['welcome_message'], parse_mode=ParseMode.HTML)
 
 
+async def post_init(application: Application):
+    await application.bot.set_my_commands([
+        BotCommand("/retry", "Regenerate last bot answer"),
+        BotCommand("/mode", "Select chat mode"),
+        BotCommand("/contexton", "Messaging with context"),
+        BotCommand("/contextoff", "Messaging without context"),
+        BotCommand("/balance", "Show balance"),
+        BotCommand("/help", "Show help"),
+    ])
+
+
 def main() -> None:
     """Start the bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token(BOT_TOKEN).build()
+    # application = Application.builder().token(BOT_TOKEN).build()
+
+    application = (
+        ApplicationBuilder()
+        .token(BOT_TOKEN)
+        .concurrent_updates(True)
+        .rate_limiter(AIORateLimiter(max_retries=5))
+        .post_init(post_init)
+        .build()
+    )
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler("start", start_command))
