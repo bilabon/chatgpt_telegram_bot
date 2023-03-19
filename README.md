@@ -51,6 +51,7 @@ And now you neet to set BOT_TOKEN, AI_TOKEN, ADMIN_USERNAME in settings/config.p
 - The command `/context off` will turn off the context support.
 - The command `/mode` – will show chat modes. You can select from 3 special chat modes: General Assistant, Code
   Assistant, Translation Assistant.
+- The command `/retry` - will regenerate last bot answer.
 
 #### ![pic1](https://i.ibb.co/dJSLCQW/Screenshot-2023-02-25-at-23-37-31.png)
 
