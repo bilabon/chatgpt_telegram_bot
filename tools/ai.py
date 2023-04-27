@@ -1,10 +1,11 @@
-import logging
-import openai
 import json
-from telegram import Update
-from openai.openai_object import OpenAIObject
+import logging
+
+import openai
 from models import User
+from openai.openai_object import OpenAIObject
 from settings.config import AI_TOKEN, GPT_MODEL
+from telegram import Update
 
 logger = logging.getLogger("debug")
 
@@ -120,7 +121,7 @@ async def _ask_chatgpt_text_davinci_003(message: str) -> tuple[str | None, OpenA
 
 
 async def _ask_chatgpt_gpt_35_turbo(update: Update, user: User, message: str, retry: bool) -> tuple[
-    str | None, OpenAIObject | None]:
+        str | None, OpenAIObject | None]:
     response, text = None, None
     messages = await get_or_update_context(update, message=message, user=user, role_id=GPT_CONTEXT_ROLE_USER,
                                            retry=retry)
@@ -145,11 +146,11 @@ async def _ask_chatgpt_gpt_35_turbo(update: Update, user: User, message: str, re
 
 
 async def ask_chatgpt(update: Update, user: User, message: str, retry: bool = False) -> tuple[
-    str | None, OpenAIObject | None]:
+        str | None, OpenAIObject | None]:
     text, response = None, None
     if GPT_MODEL == "text-davinci-003":
         text, response = await _ask_chatgpt_text_davinci_003(message)
-    elif GPT_MODEL == "gpt-3.5-turbo":
+    elif GPT_MODEL in ("gpt-4", "gpt-3.5-turbo"):
         text, response = await _ask_chatgpt_gpt_35_turbo(update, user, message, retry)
     return text, response
 
