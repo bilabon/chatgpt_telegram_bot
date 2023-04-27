@@ -2,11 +2,10 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from openai.openai_object import OpenAIObject
-from telegram import Update
-
 from models import USER_ROLE_CHOICES, User
+from openai.openai_object import OpenAIObject
 from settings.config import ADMIN_USERNAME, FREE_TOKENS
+from telegram import Update
 from tools.db import get_db
 
 logger = logging.getLogger("debug")
@@ -61,7 +60,7 @@ async def set_user_role(update: Update, username: str, role_name: str = "client"
 
 
 async def get_list_users() -> list[User] | None:
-    _sql = "SELECT * FROM user ORDER BY id DESC LIMIT 1000;"
+    _sql = "SELECT * FROM user ORDER BY id DESC LIMIT 50;"
     async with get_db() as conn:
         async with conn.execute(_sql) as cursor:
             rows = await cursor.fetchall()

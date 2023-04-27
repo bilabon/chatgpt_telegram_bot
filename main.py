@@ -1,29 +1,30 @@
 import logging
 import tempfile
 import time
-
-import pydub
 from pathlib import Path
 
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, BotCommand
-from telegram.constants import ParseMode
-from telegram.ext import (Application, CommandHandler, ContextTypes,
-                          MessageHandler, filters, CallbackQueryHandler, CallbackContext, ApplicationBuilder,
-                          AIORateLimiter)
-
+import pydub
+from models import USER_MODES_CONFIGS, User
 from settings.config import ADMIN_USERNAME, BOT_TOKEN, VOICE_LIMIT_DURATION_SEC
-from tools.ai import (
-    ask_chatgpt, is_context_enabled, GPT_CONTEXT, GPT_LAST_MESSAGE, disable_context_for_user, clear_context_for_user,
-    enable_context_for_user, transcribe_audio, )
+from telegram import (BotCommand, InlineKeyboardButton, InlineKeyboardMarkup,
+                      Update)
+from telegram.constants import ParseMode
+from telegram.ext import (AIORateLimiter, Application, ApplicationBuilder,
+                          CallbackContext, CallbackQueryHandler,
+                          CommandHandler, ContextTypes, MessageHandler,
+                          filters)
+from tools.ai import (GPT_CONTEXT, GPT_LAST_MESSAGE, ask_chatgpt,
+                      clear_context_for_user, disable_context_for_user,
+                      enable_context_for_user, is_context_enabled,
+                      transcribe_audio)
 from tools.decorators import check_user_role
 from tools.help import HELP_MESSAGE, HELP_MESSAGE_ADMIN
 from tools.log import setup_logger
-from tools.sql import (
-    get_list_users, get_or_create_user,
-    get_user_by_username, set_user_role, save_message, add_balance)
-from tools.parser import parse_setrole_command, parse_context_message, parse_addbalance_command
+from tools.parser import (parse_addbalance_command, parse_context_message,
+                          parse_setrole_command)
+from tools.sql import (add_balance, get_list_users, get_or_create_user,
+                       get_user_by_username, save_message, set_user_role)
 from tools.user import render_list_users
-from models import USER_MODES_CONFIGS, User
 from tools.utils import inform_used_tokens_on_message, show_user_balance
 
 logger = logging.getLogger("debug")
@@ -95,7 +96,7 @@ async def addbalance_command(update: Update, context: ContextTypes.DEFAULT_TYPE)
 @check_user_role
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE, user: User) -> None:
     """Send a message when the command /help is issued."""
-    reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-3.5 OpenAI API 🤖\n\n"
+    reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-4 OpenAI API 🤖\n\n"
     reply_text += HELP_MESSAGE
     if user.is_admin:
         reply_text += HELP_MESSAGE_ADMIN
