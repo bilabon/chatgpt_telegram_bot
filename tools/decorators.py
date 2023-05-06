@@ -22,7 +22,7 @@ def check_user_role(func):
                 await update.message.reply_text(text, parse_mode=ParseMode.HTML)
                 return
             if user.is_blocked:
-                reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-3.5 OpenAI API 🤖\n\n"
+                reply_text = "Hi! I'm <b>ChatGPT</b> bot implemented with GPT-4 OpenAI API 🤖\n\n"
                 reply_text += "Sorry. You have been blocked!"
                 await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
             else:
